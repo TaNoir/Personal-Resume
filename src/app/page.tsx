@@ -61,8 +61,15 @@ export default async function Home() {
         </figure>
 
         <div className="who">
+          {/* The dog is one picture cut in two along the mouth, so the lower
+              jaw can swing open when it barks. Decorative, so no alt text. */}
           <div className="avatar" aria-hidden="true">
-            <Star size={30} />
+            <div className="dog">
+              {/* eslint-disable @next/next/no-img-element */}
+              <img className="dog-head" src="/dog.jpg" alt="" width={360} height={360} />
+              <img className="dog-jaw" src="/dog.jpg" alt="" width={360} height={360} />
+              {/* eslint-enable @next/next/no-img-element */}
+            </div>
           </div>
           <div>
             <h1 className="glitch" data-text={`${resume.first} ${resume.last}`}>
