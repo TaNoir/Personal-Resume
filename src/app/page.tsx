@@ -1,4 +1,5 @@
 import Clock from "@/components/Clock";
+import Greeting from "@/components/Greeting";
 import CopyButton from "@/components/CopyButton";
 import DitherSky from "@/components/DitherSky";
 import Reveals from "@/components/Reveals";
@@ -66,8 +67,8 @@ export default async function Home() {
           <div className="avatar" aria-hidden="true">
             <div className="dog">
               {/* eslint-disable @next/next/no-img-element */}
-              <img className="dog-head" src="/dog.jpg" alt="" width={360} height={360} />
-              <img className="dog-jaw" src="/dog.jpg" alt="" width={360} height={360} />
+              <img className="dog-head" src="/dog.png" alt="" width={360} height={360} />
+              <img className="dog-jaw" src="/dog.png" alt="" width={360} height={360} />
               {/* eslint-enable @next/next/no-img-element */}
             </div>
           </div>
@@ -92,8 +93,9 @@ export default async function Home() {
 
       <main>
         <section className="intro">
+          <Greeting />
           <p>
-            Hey, I&apos;m <strong>{resume.first}</strong>, also <strong>{resume.handle}</strong>{" "}
+            I&apos;m <strong>{resume.first}</strong>, also <strong>{resume.handle}</strong>{" "}
             online. I&apos;m a 4th-year IT student at the{" "}
             <span className="tag">{edu.school}</span> who builds{" "}
             <span className="tag">web apps</span> across the whole stack, from the interface down

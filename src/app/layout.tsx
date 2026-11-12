@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { DotGothic16, Jacquard_12, Onest } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import RotPlayer from "@/components/RotPlayer";
+import StarTrail from "@/components/StarTrail";
 import { resume } from "@/content/resume";
 import "./globals.css";
 
@@ -24,7 +27,10 @@ const pixel = DotGothic16({
 const THEME_INIT = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://amorcillo.vercel.app"),
   title: `${resume.name} — ${resume.title}`,
+  openGraph: { type: "website", siteName: resume.name },
+  twitter: { card: "summary_large_image" },
   description: `${resume.first} ${resume.last} (${resume.handle}) is a software developer in ${resume.location}. Stack, project, certificates and contact.`,
 };
 
@@ -44,7 +50,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Apply a saved theme before the first paint so the page never flashes. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <RotPlayer />
+        <StarTrail />
+        <Analytics />
+      </body>
     </html>
   );
 }
