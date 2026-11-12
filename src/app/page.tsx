@@ -2,8 +2,10 @@ import Clock from "@/components/Clock";
 import CopyButton from "@/components/CopyButton";
 import DitherSky from "@/components/DitherSky";
 import Reveals from "@/components/Reveals";
-import Scramble from "@/components/Scramble";
+import StackChip from "@/components/StackChip";
 import Stickers from "@/components/Stickers";
+import ThemeToggle from "@/components/ThemeToggle";
+import { stackInfo } from "@/content/stackInfo";
 import { resume, stackCount } from "@/content/resume";
 import { getContributions, getLanguages } from "@/lib/github";
 
@@ -77,6 +79,7 @@ export default async function Home() {
               </span>
             </p>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -183,9 +186,7 @@ export default async function Home() {
                 <h3>{g.group}</h3>
                 <ul>
                   {g.items.map((item) => (
-                    <li key={item}>
-                      <Scramble text={item} />
-                    </li>
+                    <StackChip key={item} name={item} {...stackInfo[item]} />
                   ))}
                 </ul>
               </div>

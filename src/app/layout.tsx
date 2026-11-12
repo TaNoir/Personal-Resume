@@ -21,6 +21,8 @@ const pixel = DotGothic16({
   weight: "400",
 });
 
+const THEME_INIT = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
+
 export const metadata: Metadata = {
   title: `${resume.name} — ${resume.title}`,
   description: `${resume.first} ${resume.last} (${resume.handle}) is a software developer in ${resume.location}. Stack, project, certificates and contact.`,
@@ -28,12 +30,20 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0b0b0c",
-  colorScheme: "dark",
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${pixel.variable}`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${pixel.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Apply a saved theme before the first paint so the page never flashes. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body>{children}</body>
     </html>
   );

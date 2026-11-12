@@ -9,9 +9,39 @@
   --pale: #dceaff;
   --blue: #5b9bff;
   --ink: #09090b;
+  --mid: #4a4a52;
+  --l0: #1b1b1f;
+  --l1: #1c3566;
+  --l2: #2d5cb5;
+  --plate: #1c2f57;
+  --scan: rgb(0 0 0 / 0.22);
+  --grain-mix: overlay;
+  --grain-strength: 0.13;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Light mode is a photocopy: black ink and one blue on grey-white paper.
+   --pale and --ink swap roles, so every filled highlight inverts on its own. */
+:root[data-theme="light"] {
+  --bg: #e8e6e0;
+  --panel: #dedcd5;
+  --line: #b4b1a8;
+  --text: #101014;
+  --dim: #54545c;
+  --pale: #101014;
+  --blue: #2450c8;
+  --ink: #efede8;
+  --mid: #9a978e;
+  --l0: #d2d0c8;
+  --l1: #9fb6ea;
+  --l2: #5f85dd;
+  --plate: #c9d6f5;
+  --scan: rgb(0 0 0 / 0.1);
+  --grain-mix: multiply;
+  --grain-strength: 0.22;
+  color-scheme: light;
 }
 
 * {
@@ -46,8 +76,8 @@ body::after {
   z-index: 50;
   pointer-events: none;
   background-image: var(--grain);
-  opacity: 0.13;
-  mix-blend-mode: overlay;
+  opacity: var(--grain-strength);
+  mix-blend-mode: var(--grain-mix);
   animation: grain 0.9s steps(6) infinite;
 }
 
@@ -154,7 +184,7 @@ a:hover .arrow {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.22) 2px 3px);
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, var(--scan) 2px 3px);
 }
 
 .banner figcaption {
@@ -189,6 +219,43 @@ a:hover .arrow {
   align-items: center;
   gap: 1rem;
   margin-top: 1.25rem;
+}
+
+.theme {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-left: auto;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.theme:hover {
+  border-color: var(--pale);
+  background: var(--pale);
+  color: var(--ink);
+}
+
+.theme svg {
+  grid-area: 1 / 1;
+}
+
+/* Show the icon for the mode a press would switch to. */
+.theme-moon,
+:root[data-theme="light"] .theme-sun {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-moon {
+  display: block;
 }
 
 .avatar {
@@ -372,9 +439,9 @@ main > .intro {
   aspect-ratio: 1;
 }
 
-[data-level="0"] { background: #1b1b1f; }
-[data-level="1"] { background: #1c3566; }
-[data-level="2"] { background: #2d5cb5; }
+[data-level="0"] { background: var(--l0); }
+[data-level="1"] { background: var(--l1); }
+[data-level="2"] { background: var(--l2); }
 [data-level="3"] { background: var(--blue); }
 [data-level="4"] { background: var(--pale); }
 
@@ -421,7 +488,7 @@ main > .intro {
 .langs li:nth-child(2) i { background: var(--blue); }
 
 .langs-bar i:nth-child(3),
-.langs li:nth-child(3) i { background: #4a4a52; }
+.langs li:nth-child(3) i { background: var(--mid); }
 
 .langs-bar i {
   min-width: 4px;
@@ -570,6 +637,7 @@ a.tag:hover {
 }
 
 .stack-row li {
+  position: relative;
   padding: 0.3em 0.7em;
   border: 1px solid var(--line);
   background: var(--bg);
@@ -583,10 +651,60 @@ a.tag:hover {
     border-color 0.12s;
 }
 
-.stack-row li:hover {
+.stack-row li:hover,
+.stack-row li:focus {
   border-color: var(--pale);
   background: var(--pale);
   color: var(--ink);
+  outline: none;
+}
+
+/* The note that explains a stack item. Sits above the chip; --nudge is set
+   by StackChip so it never leaves the screen. */
+.tip {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  z-index: 20;
+  width: max-content;
+  max-width: min(17rem, calc(100vw - 24px));
+  padding: 0.6rem 0.75rem 0.7rem;
+  border: 1px solid var(--pale);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  white-space: normal;
+  text-align: left;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.45);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(calc(-50% + var(--nudge, 0px))) translateY(4px);
+  clip-path: inset(0 0 100% 0);
+  transition:
+    opacity 0.12s,
+    transform 0.25s var(--ease-out),
+    clip-path 0.25s var(--ease-out),
+    visibility 0s 0.25s;
+}
+
+.tip-kind {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--blue);
+  font: 400 0.75rem/1.2 var(--font-pixel), monospace;
+  letter-spacing: 0.04em;
+}
+
+.chip:hover .tip,
+.chip:focus .tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(calc(-50% + var(--nudge, 0px)));
+  clip-path: inset(0);
+  transition-delay: 0s;
 }
 
 /* ---------- project ---------- */
@@ -604,7 +722,7 @@ a.tag:hover {
   border-right: 1px solid var(--line);
   background:
     radial-gradient(circle, var(--blue) 0 1.6px, transparent 2px) 0 0 / 7px 7px,
-    radial-gradient(circle at 30% 20%, #1c2f57, var(--ink) 75%);
+    radial-gradient(circle at 30% 20%, var(--plate), var(--ink) 75%);
   color: var(--pale);
 }
 
@@ -862,6 +980,24 @@ footer {
     opacity: 0;
     transform: translateY(1rem);
   }
+}
+
+/* Theme switch: the new palette tears in from the top in hard steps while
+   the old one stays put underneath. */
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: theme-tear 0.55s steps(9) both;
+}
+
+@keyframes theme-tear {
+  0% { clip-path: inset(0 0 100% 0); transform: translateX(-14px); }
+  30% { transform: translateX(10px); }
+  55% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+  100% { clip-path: inset(0 0 0 0); transform: none; }
 }
 
 @keyframes boot-line {

@@ -16,9 +16,10 @@ const STARS = [
   { x: 0.4, y: 0.84, r: 0.12, phase: 4.4 },
 ];
 
-const PALE = [220, 234, 255];
-const BLUE = [52, 110, 222];
-const DARK = [9, 9, 11];
+// [cloud, mid-tone, ground] for each theme. In light mode the sky is
+// printed in ink on paper instead of lit on black.
+const NIGHT = [[220, 234, 255], [52, 110, 222], [9, 9, 11]];
+const PAPER = [[16, 16, 20], [47, 95, 214], [232, 230, 224]];
 
 /**
  * The banner art: a low-resolution sky of drifting cloud, crushed to three
@@ -66,6 +67,7 @@ export default function DitherSky() {
 
     const draw = (now: number) => {
       const t = now / 1000;
+      const [PALE, BLUE, DARK] = document.documentElement.dataset.theme === "light" ? PAPER : NIGHT;
       const tearRow = !still && Math.random() < 0.12 ? (Math.random() * H) | 0 : -1;
       const tearShift = ((Math.random() - 0.5) * 36) | 0;
 
