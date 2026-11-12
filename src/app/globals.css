@@ -810,7 +810,9 @@ footer {
 @media (prefers-reduced-motion: no-preference) {
   .boot {
     display: flex;
-    animation: boot-out 0.45s 1.05s steps(5) forwards;
+    animation:
+      boot-out 0.45s 1.05s steps(5) forwards,
+      boot-gone 0.01s 1.5s linear forwards;
   }
 
   .boot p {
@@ -871,7 +873,13 @@ footer {
   25% { clip-path: inset(0 0 22% 0); transform: translateX(-10px); }
   50% { clip-path: inset(18% 0 40% 0); transform: translateX(14px); }
   75% { clip-path: inset(46% 0 48% 0); transform: translateX(-6px); }
-  100% { clip-path: inset(50% 0 50% 0); visibility: hidden; }
+  100% { clip-path: inset(100% 0 0 0); opacity: 0; visibility: hidden; }
+}
+
+/* Belt and braces: whatever the stepped tear-out leaves behind, this removes
+   the overlay outright so no sliver of it can stay pinned to the screen. */
+@keyframes boot-gone {
+  to { opacity: 0; visibility: hidden; clip-path: inset(100% 0 0 0); }
 }
 
 @keyframes develop {
