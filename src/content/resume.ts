@@ -21,8 +21,11 @@ export const resume = {
       group: "frontend",
       items: ["HTML", "CSS", "React", "Next.js", "Tailwind CSS", "Bootstrap"],
     },
-    { group: "backend", items: ["Laravel", "ASP.NET", "Supabase", "REST API"] },
-    { group: "database", items: ["MySQL", "PostgreSQL", "SQLite", "Neon (Postgres)"] },
+    { group: "backend", items: ["Laravel", "ASP.NET", "SignalR", "Supabase", "REST API"] },
+    {
+      group: "database",
+      items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)"],
+    },
     { group: "devops & cloud", items: ["Git", "GitHub", "Vercel", "Render"] },
     { group: "tools", items: ["VS Code"] },
   ],
