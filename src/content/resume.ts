@@ -31,10 +31,10 @@ export const resume = {
       name: "MobileOps Connect",
       year: "2025",
       blurb:
-        "A web app for running a vehicle fleet: manage the units, track their maintenance and keep compliance in order, all from one dashboard.",
+        "An ERP web app for day-to-day operations: warehouse stock and purchase orders, payroll with PDF payslips, accounting and leave requests, all behind role-based access. Stock changes reach every user live, and it installs as an app with push notifications.",
       url: "https://moppscon.runasp.net/",
       host: "moppscon.runasp.net",
-      tags: ["C#", "ASP.NET"],
+      tags: ["C#", "ASP.NET Core MVC", "SQL Server", "SignalR", "Tailwind CSS", "PWA"],
       note: "Live, behind a login",
     },
   ],
