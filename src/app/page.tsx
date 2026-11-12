@@ -5,6 +5,11 @@ import Reveals from "@/components/Reveals";
 import Scramble from "@/components/Scramble";
 import Stickers from "@/components/Stickers";
 import { resume, stackCount } from "@/content/resume";
+import { getContributions, getLanguages } from "@/lib/github";
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const month = (date: string) => MONTHS[Number(date.slice(5, 7)) - 1];
+const percent = (share: number) => `${(share * 100).toFixed(1)}%`;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -25,9 +30,14 @@ function Star({ size = 14 }: { size?: number }) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
   const project = resume.projects[0];
   const edu = resume.education;
+  const github = resume.links[0];
+  const [graph, languages] = await Promise.all([
+    getContributions(github.handle),
+    getLanguages(github.handle),
+  ]);
 
   return (
     <div className="page">
@@ -98,10 +108,70 @@ export default function Home() {
           </div>
         </section>
 
+        {graph && (
+          <section id="github">
+            <h2 className="head">
+              GitHub <span>/ {graph.total} contributions</span>
+              <a className="head-side" href={github.href} target="_blank" rel="noreferrer">
+                @{github.handle} <Arrow />
+              </a>
+            </h2>
+            <div className="panel graph" data-reveal="slide">
+              <p className="graph-top">
+                <strong>{github.handle}</strong>
+                <span>{graph.total} in the last year</span>
+              </p>
+              <div
+                className="cells"
+                role="img"
+                aria-label={`${graph.total} GitHub contributions in the last year`}
+              >
+                {graph.days.map((d, i) => (
+                  <i
+                    key={d.date}
+                    data-level={d.level}
+                    title={`${d.count} on ${d.date}`}
+                    style={i === 0 ? { gridRowStart: graph.offset + 1 } : undefined}
+                  />
+                ))}
+              </div>
+              <p className="graph-foot">
+                <span>{month(graph.days[0].date)}</span>
+                <span className="legend" aria-hidden="true">
+                  Less
+                  {[0, 1, 2, 3, 4].map((l) => (
+                    <i key={l} data-level={l} />
+                  ))}
+                  More
+                </span>
+                <span>{month(graph.days[graph.days.length - 1].date)}</span>
+              </p>
+            </div>
+          </section>
+        )}
+
         <section id="stack">
           <h2 className="head">
             stack <span>/ {stackCount}</span>
+            {languages && <span className="head-side">languages by code on GitHub</span>}
           </h2>
+          {languages && (
+            <div className="langs" data-reveal="slide">
+              <div className="langs-bar" aria-hidden="true">
+                {languages.map((l) => (
+                  <i key={l.name} style={{ flexGrow: l.share }} />
+                ))}
+              </div>
+              <ul>
+                {languages.map((l) => (
+                  <li key={l.name}>
+                    <i aria-hidden="true" />
+                    {l.name} <span>{percent(l.share)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="panel stack">
             {resume.stack.map((g, i) => (
               <div
