@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-const WORDS = [
-  { text: "Hey there", lang: "english" },
-  { text: "Kumusta", lang: "filipino" },
-  { text: "Maayong adlaw", lang: "bisaya" },
-  { text: "こんにちは", lang: "japanese" },
-] as const;
+// English, Filipino, Bisaya, Japanese.
+const WORDS = ["Hey there", "Kumusta", "Maayong adlaw", "こんにちは"];
 
 const NOISE = "#%&$@!?<>/\\[]{}=+*01";
 const HOLD_MS = 2800;
@@ -20,7 +16,6 @@ const HOLD_MS = 2800;
  * ever renders the first one), so the scramble never fights React's render.
  */
 export default function Greeting() {
-  const [lang, setLang] = useState<string>(WORDS[0].lang);
   const word = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -31,8 +26,7 @@ export default function Greeting() {
 
     const timer = setInterval(() => {
       index = (index + 1) % WORDS.length;
-      const target = Array.from(WORDS[index].text);
-      setLang(WORDS[index].lang);
+      const target = Array.from(WORDS[index]);
 
       let step = 0;
       clearInterval(scramble);
@@ -58,9 +52,8 @@ export default function Greeting() {
       <span className="sr-only">Hey there.</span>
       <span aria-hidden="true">
         <span ref={word} className="greet-word">
-          {WORDS[0].text}
+          {WORDS[0]}
         </span>
-        <span className="greet-lang">{lang}</span>
       </span>
     </p>
   );
