@@ -1,24 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders_Stencil, Chakra_Petch, Martian_Mono } from "next/font/google";
+import { DotGothic16, Jacquard_12, Onest } from "next/font/google";
 import { resume } from "@/content/resume";
 import "./globals.css";
 
-const display = Big_Shoulders_Stencil({
+const display = Jacquard_12({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["700", "900"],
+  weight: "400",
 });
 
-const body = Chakra_Petch({
+const body = Onest({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
 
-const mono = Martian_Mono({
-  variable: "--font-mono",
+const pixel = DotGothic16({
+  variable: "--font-pixel",
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -27,13 +27,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0c0e0b",
+  themeColor: "#0b0b0c",
   colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${pixel.variable}`}>
       <body>{children}</body>
     </html>
   );

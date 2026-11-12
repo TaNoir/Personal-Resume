@@ -3,13 +3,12 @@
 import { useRef } from "react";
 
 const STICKERS = [
-  { text: "null.rot", tone: "acid", x: 4, y: 18, r: -7 },
-  { text: "handle with care", tone: "bone", x: 27, y: 50, r: 5 },
-  { text: "made in davao", tone: "rust", x: 56, y: 14, r: -4 },
-  { text: "no bugs (probably)", tone: "bone", x: 76, y: 48, r: 3 },
+  { text: "null.rot", tone: "pale", x: 0, y: 10, r: -6 },
+  { text: "handle with care", tone: "blue", x: 24, y: 46, r: 4 },
+  { text: "made in davao", tone: "dark", x: 62, y: 8, r: -3 },
 ] as const;
 
-/** Loose labels you can drag around and fling. Decorative only. */
+/** Loose labels you can drag around. Decorative only. */
 export default function Stickers() {
   return (
     <div className="stickers" aria-hidden="true">

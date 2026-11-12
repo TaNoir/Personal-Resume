@@ -1,7 +1,7 @@
 import Clock from "@/components/Clock";
 import CopyButton from "@/components/CopyButton";
+import DitherSky from "@/components/DitherSky";
 import Reveals from "@/components/Reveals";
-import RotField from "@/components/RotField";
 import Scramble from "@/components/Scramble";
 import Stickers from "@/components/Stickers";
 import { resume, stackCount } from "@/content/resume";
@@ -10,19 +10,27 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 function Arrow() {
   return (
-    <svg className="arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+    <svg className="arrow" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
       <path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" strokeWidth="1.75" />
     </svg>
   );
 }
 
-const TAPE = [resume.status, resume.title, resume.location, resume.handle];
+/** The four-point star that runs through the whole site. */
+function Star({ size = 14 }: { size?: number }) {
+  return (
+    <svg className="star" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <path d="M12 0c.9 7.2 4.8 11.1 12 12-7.2.9-11.1 4.800-12 12-.9-7.200-4.800-11.100-12-12 7.200-.9 11.100-4.800 12-12Z" fill="currentColor" />
+    </svg>
+  );
+}
 
 export default function Home() {
   const project = resume.projects[0];
+  const edu = resume.education;
 
   return (
-    <>
+    <div className="page">
       <Reveals />
       <div className="boot" aria-hidden="true">
         <p>mount /dev/{resume.handle}</p>
@@ -31,87 +39,70 @@ export default function Home() {
         <p className="boot-ok">ok</p>
       </div>
 
-      <header className="banner">
-        <RotField />
-        <div className="banner-bar">
-          <span className="tape-label">{resume.handle}</span>
-          <nav aria-label="Sections">
-            <a href="#stack">stack</a>
-            <a href="#project">project</a>
-            <a href="#record">record</a>
-            <a href="#contact">contact</a>
-          </nav>
-        </div>
-        <h1 className="name" aria-label={resume.name}>
-          <span className="glitch" data-text={resume.first}>
-            {resume.first}
-          </span>
-          <span className="name-mid">{resume.middle}</span>
-          <span className="glitch glitch-late" data-text={resume.last}>
-            {resume.last}
-          </span>
-        </h1>
-      </header>
+      <header>
+        <figure className="banner">
+          <DitherSky />
+          <figcaption aria-hidden="true">
+            <span>sky.raw / 1-bit / {resume.handle}</span>
+            <span lang="ja">エヴァンダー</span>
+          </figcaption>
+        </figure>
 
-      <div className="tape" aria-hidden="true">
-        <div className="tape-run">
-          {[0, 1, 2, 3].map((k) => (
-            <span key={k}>
-              {TAPE.map((t) => (
-                <span key={t}>{t}</span>
-              ))}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <main>
-        <section className="intro wrap">
-          <div className="intro-copy">
-            {resume.intro.map((p) => (
-              <p key={p}>{p}</p>
-            ))}
-            <div className="actions">
-              <a className="btn btn-solid" href={`mailto:${resume.emails[0].address}`}>
-                Email me <Arrow />
-              </a>
-              {resume.links.map((l) => (
-                <a key={l.label} className="btn" href={l.href} target="_blank" rel="noreferrer">
-                  {l.label} <Arrow />
-                </a>
-              ))}
-            </div>
+        <div className="who">
+          <div className="avatar" aria-hidden="true">
+            <Star size={30} />
           </div>
-          <dl className="sheet">
-            <div>
-              <dt>role</dt>
-              <dd>{resume.title}</dd>
-            </div>
-            <div>
-              <dt>base</dt>
-              <dd>{resume.location}</dd>
-            </div>
-            <div>
-              <dt>local time</dt>
-              <dd>
-                <Clock timeZone={resume.timeZone} /> PHT
-              </dd>
-            </div>
-            <div>
-              <dt>status</dt>
-              <dd className="status">
+          <div>
+            <h1 className="glitch" data-text={`${resume.first} ${resume.last}`}>
+              {resume.first} {resume.last}
+            </h1>
+            <p className="who-meta">
+              <span>{resume.title}</span>
+              <span className="pill">
                 <i aria-hidden="true" />
                 {resume.status}
-              </dd>
-            </div>
-          </dl>
+                <span className="pill-time">
+                  <Clock timeZone={resume.timeZone} seconds={false} /> PHT
+                </span>
+              </span>
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section className="intro">
+          <p>
+            Hey, I&apos;m <strong>{resume.first}</strong>, also <strong>{resume.handle}</strong>{" "}
+            online. I&apos;m a 4th-year IT student at the{" "}
+            <span className="tag">{edu.school}</span> who builds{" "}
+            <span className="tag">web apps</span> across the whole stack, from the interface down
+            to the database.
+          </p>
+          <p>
+            Lately that means C# and ASP.NET, with Rust on the side. My latest project is{" "}
+            <a className="tag" href="#project">
+              {project.name}
+            </a>
+            . I&apos;m based in <span className="tag">{resume.location}</span> and open to work.
+          </p>
+          <div className="actions">
+            <a className="btn btn-solid" href={`mailto:${resume.emails[0].address}`}>
+              Say hi <Arrow />
+            </a>
+            {resume.links.map((l) => (
+              <a key={l.label} className="btn" href={l.href} target="_blank" rel="noreferrer">
+                {l.label} <Arrow />
+              </a>
+            ))}
+          </div>
         </section>
 
-        <section id="stack" className="wrap">
-          <h2 className="head" data-reveal="wipe">
+        <section id="stack">
+          <h2 className="head">
             stack <span>/ {stackCount}</span>
           </h2>
-          <div className="stack">
+          <div className="panel stack">
             {resume.stack.map((g, i) => (
               <div
                 key={g.group}
@@ -119,12 +110,10 @@ export default function Home() {
                 data-reveal="slide"
                 style={{ "--i": i } as React.CSSProperties}
               >
-                <h3>
-                  {g.group} <span>{pad(g.items.length)}</span>
-                </h3>
+                <h3>{g.group}</h3>
                 <ul>
                   {g.items.map((item) => (
-                    <li key={item} tabIndex={-1}>
+                    <li key={item}>
                       <Scramble text={item} />
                     </li>
                   ))}
@@ -134,97 +123,101 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="project" className="flyer">
-          <div className="wrap">
-            <h2 className="head head-ink" data-reveal="wipe">
-              project <span>/ {pad(resume.projects.length)}</span>
-            </h2>
-            <div className="flyer-body">
-              <h3 className="flyer-title" data-reveal="stamp">{project.name}</h3>
-              <div className="flyer-side">
-                <p>{project.blurb}</p>
-                <ul className="flyer-tags">
-                  <li>{project.year}</li>
-                  {project.tags.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                  <li>{project.note}</li>
-                </ul>
-                <a className="btn btn-ink" href={project.url} target="_blank" rel="noreferrer">
-                  {project.host} <Arrow />
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="record" className="wrap record">
-          <div>
-            <h2 className="head" data-reveal="wipe">education</h2>
-            <div className="school">
-              <p className="school-name">{resume.education.school}</p>
-              <p>{resume.education.degree}</p>
-              <p className="dim">
-                {resume.education.place} · {resume.education.status}
-              </p>
-            </div>
-          </div>
-          <div>
-            <h2 className="head" data-reveal="wipe">
-              certificates <span>/ {pad(resume.certificates.length)}</span>
-            </h2>
-            <ul className="certs">
-              {resume.certificates.map((c, i) => (
-                <li key={c.name} data-reveal="slide" style={{ "--i": i } as React.CSSProperties}>
-                  <a href={c.file} target="_blank" rel="noreferrer">
-                    <span className="cert-name">{c.name}</span>
-                    <time dateTime={c.date}>{c.label}</time>
-                    <span className="cert-open">
-                      PDF <Arrow />
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <p className="dim certs-note">{resume.certIssuer} certifications</p>
-          </div>
-        </section>
-      </main>
-
-      <footer id="contact" className="contact">
-        <Stickers />
-        <div className="wrap">
-          <h2 className="contact-title" data-reveal="track">
-            Got work?
-            <br />
-            Say hi.
+        <section id="project">
+          <h2 className="head">
+            project <span>/ {pad(resume.projects.length)}</span>
           </h2>
-          <ul className="reach" data-reveal="slide">
-            {resume.emails.map((e) => (
-              <li key={e.address}>
-                <span className="reach-label">{e.label} email</span>
-                <a href={`mailto:${e.address}`}>{e.address}</a>
-                <CopyButton value={e.address} label={`${e.label} email`} />
-              </li>
-            ))}
-            {resume.links.map((l) => (
-              <li key={l.label}>
-                <span className="reach-label">{l.label}</span>
-                <a href={l.href} target="_blank" rel="noreferrer">
-                  {l.handle} <Arrow />
+          <article className="panel project" data-reveal="slide">
+            <div className="project-art" aria-hidden="true">
+              <Star size={56} />
+            </div>
+            <div className="project-body">
+              <h3>{project.name}</h3>
+              <p>{project.blurb}</p>
+              <ul className="meta">
+                <li>{project.year}</li>
+                {project.tags.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+                <li>{project.note}</li>
+              </ul>
+              <a className="link" href={project.url} target="_blank" rel="noreferrer">
+                Visit {project.host} <Arrow />
+              </a>
+            </div>
+          </article>
+        </section>
+
+        <section id="record">
+          <h2 className="head">education</h2>
+          <ul className="rows">
+            <li data-reveal="slide">
+              <div className="row">
+                <span>
+                  {edu.degree}, {edu.school}
+                </span>
+                <span className="row-side">{edu.status}</span>
+              </div>
+            </li>
+          </ul>
+
+          <h2 className="head head-gap">
+            certificates <span>/ {pad(resume.certificates.length)}</span>
+          </h2>
+          <ul className="rows">
+            {resume.certificates.map((c, i) => (
+              <li key={c.name} data-reveal="slide" style={{ "--i": i } as React.CSSProperties}>
+                <a className="row" href={c.file} target="_blank" rel="noreferrer">
+                  <span>
+                    {c.name} <Arrow />
+                  </span>
+                  <time className="row-side" dateTime={c.date}>
+                    {c.label}
+                  </time>
                 </a>
               </li>
             ))}
           </ul>
-          <p className="colophon">
-            <span>
-              <Clock timeZone={resume.timeZone} seconds={false} /> in Davao City
-            </span>
-            <span>the labels are loose. drag them.</span>
-            <span>© 2026 {resume.name}</span>
-          </p>
-        </div>
+          <p className="note">{resume.certIssuer} certifications. Each one opens its PDF.</p>
+        </section>
+
+        <section id="contact">
+          <h2 className="head">contact</h2>
+          <ul className="rows">
+            {resume.emails.map((e) => (
+              <li key={e.address}>
+                <div className="row">
+                  <span className="reach">
+                    <span className="reach-label">{e.label}</span>
+                    <a href={`mailto:${e.address}`}>{e.address}</a>
+                  </span>
+                  <CopyButton value={e.address} label={`${e.label} email`} />
+                </div>
+              </li>
+            ))}
+            {resume.links.map((l) => (
+              <li key={l.label}>
+                <a className="row" href={l.href} target="_blank" rel="noreferrer">
+                  <span className="reach">
+                    <span className="reach-label">{l.label}</span>
+                    {l.handle}
+                  </span>
+                  <Arrow />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <Stickers />
+        <p>
+          <Clock timeZone={resume.timeZone} seconds={false} /> in Davao City
+        </p>
+        <p>the labels are loose. drag them.</p>
+        <p>© 2026 {resume.name}</p>
       </footer>
-    </>
+    </div>
   );
 }
