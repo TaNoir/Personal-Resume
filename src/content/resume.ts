@@ -15,19 +15,19 @@ export const resume = {
   stack: [
     {
       group: "languages",
-      items: ["TypeScript", "JavaScript", "Python", "Java", "C#", "C++", "Rust", "PHP"],
+      items: ["TypeScript", "JavaScript", "Python", "Java", "C#", "C++", "Rust", "PHP", "PowerShell"],
     },
     {
       group: "frontend",
       items: ["HTML", "CSS", "React", "Next.js", "Tailwind CSS", "Bootstrap"],
     },
-    { group: "backend", items: ["Laravel", "ASP.NET", "SignalR", "Supabase", "REST API"] },
+    { group: "backend", items: ["Laravel", "ASP.NET", "Entity Framework Core", "SignalR", "Supabase", "REST API"] },
     {
       group: "database",
       items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)"],
     },
     { group: "devops & cloud", items: ["Git", "GitHub", "Vercel", "Render"] },
-    { group: "tools", items: ["VS Code"] },
+    { group: "tools", items: ["VS Code", "Visual Studio", "xUnit"] },
   ],
   projects: [
     {

@@ -119,4 +119,20 @@ export const stackInfo: Record<string, { kind: string; what: string }> = {
     kind: "Code editor",
     what: "The program I write code in. Think of it as a word processor for programmers.",
   },
+  "Visual Studio": {
+    kind: "Development environment",
+    what: "Microsoft's full workshop for building C# apps: write, run and debug in one place.",
+  },
+  xUnit: {
+    kind: "Testing tool",
+    what: "Runs automatic checks on my code, so a change that breaks something gets caught early.",
+  },
+  PowerShell: {
+    kind: "Scripting language",
+    what: "Automates Windows chores, like checking a PC's settings, with a short script.",
+  },
+  "Entity Framework Core": {
+    kind: "Database toolkit",
+    what: "Lets C# code save and load data without writing database queries by hand.",
+  },
 };
