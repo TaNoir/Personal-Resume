@@ -746,6 +746,13 @@ a.tag:hover {
     border-color 0.12s;
 }
 
+/* Clipped so the scramble's wider noise letters can't resize the chip. */
+.chip-label {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
 .stack-row li:hover,
 .stack-row li:focus {
   border-color: var(--pale);

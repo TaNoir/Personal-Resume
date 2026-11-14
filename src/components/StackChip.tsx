@@ -30,6 +30,10 @@ export default function StackChip({ name, kind, what }: { name: string; kind?: s
     const el = label.current;
     if (!el || timer.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Noise letters are wider than the real ones. Hold the label at its
+    // resting width so the chip can't grow, wrap to the next line and slide
+    // out from under the pointer.
+    el.style.width = `${el.getBoundingClientRect().width}px`;
     let step = 0;
     timer.current = setInterval(() => {
       step += 0.5;
@@ -41,6 +45,7 @@ export default function StackChip({ name, kind, what }: { name: string; kind?: s
         clearInterval(timer.current!);
         timer.current = null;
         el.textContent = name;
+        el.style.width = "";
       }
     }, 28);
   };
@@ -59,7 +64,7 @@ export default function StackChip({ name, kind, what }: { name: string; kind?: s
       onPointerEnter={open}
       onFocus={open}
     >
-      <span ref={label}>{name}</span>
+      <span ref={label} className="chip-label">{name}</span>
       {what && (
         <span ref={tip} id={id} role="tooltip" className="tip">
           <span className="tip-kind">{kind}</span>
