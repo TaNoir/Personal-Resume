@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { konamiStep } from "@/lib/konami";
 import { SECRET_IDS, findSecret } from "@/lib/secrets";
 
@@ -36,6 +36,21 @@ declare global {
  */
 export default function Secrets() {
   const [toast, setToast] = useState<string | null>(null);
+  const slot = useRef<HTMLDivElement>(null);
+
+  // The toast lives in the browser's top layer (a popover), so it shows above
+  // the terminal or the game when a secret is found inside one of them.
+  // Re-showing it moves it above anything opened since.
+  useEffect(() => {
+    const el = slot.current;
+    if (!el || typeof el.showPopover !== "function") return;
+    try {
+      if (el.matches(":popover-open")) el.hidePopover();
+      if (toast) el.showPopover();
+    } catch {
+      // Not connected yet, or already in the wanted state.
+    }
+  }, [toast]);
 
   useEffect(() => {
     let toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -107,12 +122,17 @@ export default function Secrets() {
   }, []);
 
   return (
-    <div className="toast-slot" role="status">
-      {toast && (
-        <p key={toast} className="toast">
-          <span aria-hidden="true">✦</span> {toast}
-        </p>
-      )}
-    </div>
+    <>
+      <p className="sr-only" role="status">
+        {toast}
+      </p>
+      <div ref={slot} className="toast-slot" popover="manual" aria-hidden="true">
+        {toast && (
+          <p key={toast} className="toast">
+            <span>✦</span> {toast}
+          </p>
+        )}
+      </div>
+    </>
   );
 }

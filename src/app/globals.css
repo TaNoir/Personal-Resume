@@ -1470,12 +1470,18 @@ footer {
   outline: none;
 }
 
-/* A found secret: a strip that tears in above the radio, then fades. */
+/* A found secret: a strip that tears in at the top of the screen, then
+   fades. It is a popover, so the browser's popover defaults are undone. */
 .toast-slot {
   position: fixed;
-  left: 50%;
-  bottom: clamp(4.25rem, 9vw, 5rem);
+  inset: clamp(0.75rem, 3vw, 1.25rem) auto auto 50%;
   z-index: 80;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  overflow: visible;
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -1533,8 +1539,18 @@ footer {
   animation: term-in 0.24s steps(4);
 }
 
+/* Light enough that the dog barking or biting behind it still shows. */
 .term::backdrop {
-  background: rgb(0 0 0 / 0.55);
+  background: rgb(0 0 0 / 0.3);
+}
+
+/* On wide screens the terminal docks at the bottom like a console drawer,
+   leaving the banner and the dog in view. Phones keep it centred, where the
+   on-screen keyboard can't push it out of sight. */
+@media (min-width: 48rem) {
+  .term {
+    margin-bottom: 1.5rem;
+  }
 }
 
 @keyframes term-in {
@@ -1745,6 +1761,11 @@ footer {
   touch-action: manipulation;
   cursor: pointer;
   outline: none;
+}
+
+.runner canvas:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
 }
 
 .runner-hud {

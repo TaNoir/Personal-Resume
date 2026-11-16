@@ -102,7 +102,8 @@ export default function Terminal() {
     const text = el.value;
     el.value = "";
     recall.current = -1;
-    if (text.trim()) history.current = [text, ...history.current].slice(0, 50);
+    if (!text.trim()) return;
+    history.current = [text, ...history.current].slice(0, 50);
     print([`> ${text}`], true);
     const result = run(text, { found, sky: document.documentElement.dataset.sky ?? null });
     print(result.lines);
@@ -131,6 +132,9 @@ export default function Terminal() {
       className="term"
       aria-label="Terminal"
       onClick={(e) => {
+        // Leave a text selection alone so printed lines can be copied, even
+        // when the drag ended out on the backdrop.
+        if (window.getSelection()?.isCollapsed === false) return;
         if (e.target === e.currentTarget) dialog.current?.close();
         else if (!(e.target instanceof HTMLButtonElement)) input.current?.focus();
       }}

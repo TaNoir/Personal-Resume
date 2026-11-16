@@ -90,6 +90,22 @@ export default function DogRunner() {
     let sprite: Uint8Array | null = null;
     let spriteAsked = false;
     let overAt = 0;
+    // Dither for the roof walls, rebuilt only when the theme changes.
+    let wall: CanvasPattern | null = null;
+    let wallTone = "";
+    const wallPattern = (tone: string) => {
+      if (wall && wallTone === tone) return wall;
+      const tile = document.createElement("canvas");
+      tile.width = tile.height = 2;
+      const t = tile.getContext("2d");
+      if (!t) return null;
+      t.fillStyle = tone;
+      t.fillRect(0, 0, 1, 1);
+      t.fillRect(1, 1, 1, 1);
+      wall = ctx.createPattern(tile, "repeat");
+      wallTone = tone;
+      return wall;
+    };
 
     const say = (text: string) => {
       if (message.current) message.current.textContent = text;
@@ -119,10 +135,8 @@ export default function DogRunner() {
         // Pale ledge, then a dithered wall down to the bottom.
         ctx.fillStyle = rgb(PALE);
         ctx.fillRect(x, ROOF_Y, w, 3);
-        ctx.fillStyle = rgb(BLUE);
-        for (let y = ROOF_Y + 3; y < VIEW_H; y++) {
-          for (let px = x + ((y + x) & 1); px < x + w; px += 2) ctx.fillRect(px, y, 1, 1);
-        }
+        ctx.fillStyle = wallPattern(rgb(BLUE)) ?? rgb(BLUE);
+        ctx.fillRect(x, ROOF_Y + 3, w, VIEW_H - ROOF_Y - 3);
         ctx.fillStyle = rgb(PALE);
         for (const c of r.chimneys) ctx.fillRect(Math.round(r.x + c), ROOF_Y - CHIMNEY_H, CHIMNEY_W, CHIMNEY_H);
       }
