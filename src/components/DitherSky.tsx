@@ -93,11 +93,13 @@ export default function DitherSky({ sky }: { sky: SkyState | null }) {
       const rainT = (t * 90) | 0;
       const rainDash = (t * 60) | 0;
       const [PALE, BLUE, DARK] = document.documentElement.dataset.theme === "light" ? PAPER : NIGHT;
-      const tearRow = !still && Math.random() < 0.12 ? (Math.random() * H) | 0 : -1;
-      const tearShift = ((Math.random() - 0.5) * 36) | 0;
+      const rot = "rot" in document.documentElement.dataset;
+      const tearRow = !still && Math.random() < (rot ? 0.85 : 0.12) ? (Math.random() * H) | 0 : -1;
+      const tearShift = ((Math.random() - 0.5) * (rot ? 140 : 36)) | 0;
+      const tearHeight = rot ? 22 : 5;
 
       for (let y = 0; y < H; y++) {
-        const shift = tearRow >= 0 && y >= tearRow && y < tearRow + 5 ? tearShift : 0;
+        const shift = tearRow >= 0 && y >= tearRow && y < tearRow + tearHeight ? tearShift : 0;
         for (let x = 0; x < W; x++) {
           const sx = x + shift;
           let v = cloud(sx * 0.02 + t * 0.045, y * 0.034 + t * 0.012);

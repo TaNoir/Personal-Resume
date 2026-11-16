@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSecrets } from "@/lib/secrets";
 
 /**
  * A tiny media player whose music is composed live in the browser with the
@@ -55,7 +56,22 @@ const TRACKS: Track[] = [
     arp: [0, -1, 3, 1, 2, -1, 3, 2],
     kick: [0, 2, 5],
   },
+  // Hidden until the visitor finds a secret. Diminished and restless.
+  {
+    title: "bad_sector.wav",
+    bpm: 96,
+    chords: [
+      [52, 55, 58, 62],
+      [53, 56, 59, 63],
+      [50, 53, 56, 59],
+      [49, 52, 55, 58],
+    ],
+    arp: [0, 3, 1, 3, 2, 3, 1, -1],
+    kick: [0, 1, 4, 6],
+  },
 ];
+
+const SECRET_TRACK = TRACKS.length - 1;
 
 const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
 const LOOKAHEAD = 0.12;
@@ -152,6 +168,7 @@ export default function RotPlayer() {
   const engine = useRef<Engine | null>(null);
   const bars = useRef<HTMLSpanElement>(null);
   const state = useRef({ step: 0, nextAt: 0, startedAt: 0, track: 0 });
+  const unlocked = useSecrets().length > 0;
 
   // Sequencer: schedule notes slightly ahead of time so playback stays tight.
   useEffect(() => {
@@ -234,7 +251,10 @@ export default function RotPlayer() {
   };
 
   const skip = () => {
-    setTrack((t) => (t + 1) % TRACKS.length);
+    setTrack((t) => {
+      const next = (t + 1) % TRACKS.length;
+      return next === SECRET_TRACK && !unlocked ? 0 : next;
+    });
     setElapsed(0);
   };
 
