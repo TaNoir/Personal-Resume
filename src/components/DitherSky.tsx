@@ -22,8 +22,8 @@ const MOON = { x: 0.5, y: 0.27, r: 0.11 };
 
 // [cloud, mid-tone, ground] for each theme. In light mode the sky is
 // printed in ink on paper instead of lit on black.
-const NIGHT = [[220, 234, 255], [52, 110, 222], [9, 9, 11]];
-const PAPER = [[16, 16, 20], [47, 95, 214], [232, 230, 224]];
+export const NIGHT = [[220, 234, 255], [52, 110, 222], [9, 9, 11]];
+export const PAPER = [[16, 16, 20], [47, 95, 214], [232, 230, 224]];
 
 /**
  * The banner art: a low-resolution sky of drifting cloud, crushed to three

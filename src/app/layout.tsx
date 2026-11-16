@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DotGothic16, Jacquard_12, Onest } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import DogRunner from "@/components/DogRunner";
 import RotPlayer from "@/components/RotPlayer";
 import Secrets from "@/components/Secrets";
 import StarTrail from "@/components/StarTrail";
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <StarTrail />
         <Secrets />
         <Terminal />
+        <DogRunner />
         <Analytics />
       </body>
     </html>

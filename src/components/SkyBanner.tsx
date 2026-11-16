@@ -48,6 +48,13 @@ export default function SkyBanner({ handle }: { handle: string }) {
   return (
     <figure className="banner">
       <DitherSky sky={sky} />
+      <button
+        type="button"
+        className="play-btn"
+        onClick={() => window.dispatchEvent(new CustomEvent("rot:play"))}
+      >
+        ▶ play
+      </button>
       <figcaption aria-hidden="true">
         <span>{live || `sky.raw / 1-bit / ${handle}`}</span>
         <span lang="ja">エヴァンダー</span>
