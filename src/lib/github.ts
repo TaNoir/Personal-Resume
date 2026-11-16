@@ -84,3 +84,23 @@ export async function getLanguages(user: string): Promise<Language[] | null> {
     return null;
   }
 }
+
+const ACTIVITY = new Set(["PushEvent", "CreateEvent", "PullRequestEvent"]);
+
+/** When the user last pushed code in public, as an ISO timestamp. */
+export async function getLastPush(user: string): Promise<string | null> {
+  "use cache";
+  cacheLife("hours");
+
+  try {
+    const res = await fetch(`https://api.github.com/users/${user}/events/public?per_page=30`, {
+      headers: HEADERS,
+    });
+    if (!res.ok) return null;
+    const events: { type?: string; created_at?: string }[] = await res.json();
+    const hit = events.find((e) => e.type && ACTIVITY.has(e.type) && typeof e.created_at === "string");
+    return hit?.created_at ?? null;
+  } catch {
+    return null;
+  }
+}

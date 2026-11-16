@@ -1,3 +1,4 @@
+import Ago from "@/components/Ago";
 import Clock from "@/components/Clock";
 import Greeting from "@/components/Greeting";
 import CopyButton from "@/components/CopyButton";
@@ -8,7 +9,7 @@ import Stickers from "@/components/Stickers";
 import ThemeToggle from "@/components/ThemeToggle";
 import { stackInfo } from "@/content/stackInfo";
 import { resume, stackCount } from "@/content/resume";
-import { getContributions, getLanguages } from "@/lib/github";
+import { getContributions, getLanguages, getLastPush } from "@/lib/github";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const month = (date: string) => MONTHS[Number(date.slice(5, 7)) - 1];
@@ -37,9 +38,10 @@ export default async function Home() {
   const project = resume.projects[0];
   const edu = resume.education;
   const github = resume.links[0];
-  const [graph, languages] = await Promise.all([
+  const [graph, languages, lastPush] = await Promise.all([
     getContributions(github.handle),
     getLanguages(github.handle),
+    getLastPush(github.handle),
   ]);
 
   return (
@@ -131,6 +133,7 @@ export default async function Home() {
             <div className="panel graph" data-reveal="slide">
               <p className="graph-top">
                 <strong>{github.handle}</strong>
+                {lastPush && <Ago iso={lastPush} />}
                 <span>{graph.total} in the last year</span>
               </p>
               <div
