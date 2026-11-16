@@ -54,7 +54,8 @@ export default function Secrets() {
     };
 
     const key = (e: KeyboardEvent) => {
-      if (typing(e.target)) return;
+      // Arrow keys aimed at the game or terminal don't count.
+      if (typing(e.target) || document.querySelector("dialog[open]")) return;
       konami = konamiStep(konami, e.key);
       if (konami < 10) return;
       konami = 0;

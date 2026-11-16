@@ -20,6 +20,7 @@ import {
 
 const BEST_KEY = "runner-best";
 const SHAKE_MS = 200;
+const RESTART_LOCK_MS = 450;
 
 // A few fixed four-point stars in the sky behind the roofs.
 const STARS = [
@@ -88,6 +89,7 @@ export default function DogRunner() {
     let last = 0;
     let sprite: Uint8Array | null = null;
     let spriteAsked = false;
+    let overAt = 0;
 
     const say = (text: string) => {
       if (message.current) message.current.textContent = text;
@@ -156,6 +158,7 @@ export default function DogRunner() {
 
       if (before !== "running" && game.status === "running") say("");
       if (before === "running" && game.status === "over") {
+        overAt = now;
         const s = score(game);
         if (s > best) {
           best = s;
@@ -196,16 +199,25 @@ export default function DogRunner() {
 
     const stop = () => cancelAnimationFrame(raf);
 
+    // A crash shows its score for a moment before a mashed jump can restart.
+    const press = () => {
+      if (game.status === "over" && performance.now() - overAt < RESTART_LOCK_MS) return;
+      jump = true;
+    };
+
     const key = (e: KeyboardEvent) => {
       if (!d.open || (e.key !== " " && e.key !== "ArrowUp")) return;
+      // Only keys aimed at the game window, never another dialog on top.
+      const target = e.target as Node | null;
+      if (target !== document.body && !(target && d.contains(target))) return;
       if (e.target instanceof HTMLButtonElement) return;
       e.preventDefault();
-      if (!e.repeat) jump = true;
+      if (!e.repeat) press();
     };
 
     const tap = (e: PointerEvent) => {
       e.preventDefault();
-      jump = true;
+      press();
     };
 
     window.addEventListener("rot:play", open);

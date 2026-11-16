@@ -58,6 +58,8 @@ export default function Terminal() {
     const fromButton = () => openRef.current();
     const fromKey = (e: globalThis.KeyboardEvent) => {
       if (e.key !== "`" || e.ctrlKey || e.metaKey || e.altKey || typing(e.target)) return;
+      // Not on top of another window, such as the game.
+      if (document.querySelector("dialog[open]")) return;
       e.preventDefault();
       openRef.current();
     };

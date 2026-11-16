@@ -1677,8 +1677,10 @@ footer {
   }
 }
 
+/* On the root element itself: a filter on body would turn it into the
+   frame for every fixed element, moving the toast and radio off screen. */
 @media (prefers-reduced-motion: reduce) {
-  :root[data-rot] body {
+  :root[data-rot] {
     filter: invert(1);
   }
 }
