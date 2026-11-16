@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DotGothic16, Jacquard_12, Onest } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import RotPlayer from "@/components/RotPlayer";
+import Secrets from "@/components/Secrets";
 import StarTrail from "@/components/StarTrail";
 import { resume } from "@/content/resume";
 import "./globals.css";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <RotPlayer />
         <StarTrail />
+        <Secrets />
         <Analytics />
       </body>
     </html>

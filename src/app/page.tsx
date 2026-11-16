@@ -3,6 +3,7 @@ import Clock from "@/components/Clock";
 import Greeting from "@/components/Greeting";
 import CopyButton from "@/components/CopyButton";
 import Reveals from "@/components/Reveals";
+import SecretCount from "@/components/SecretCount";
 import SkyBanner from "@/components/SkyBanner";
 import StackChip from "@/components/StackChip";
 import Stickers from "@/components/Stickers";
@@ -293,6 +294,7 @@ export default async function Home() {
           <Clock timeZone={resume.timeZone} seconds={false} /> in Davao City
         </p>
         <p>the labels are loose. drag them.</p>
+        <SecretCount />
         <p>© 2026 {resume.name}</p>
       </footer>
     </div>
