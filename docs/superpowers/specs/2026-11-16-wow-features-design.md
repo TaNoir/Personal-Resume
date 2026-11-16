@@ -124,8 +124,9 @@ Six secrets, ids in this order:
 
 ### 3. Dog on the roof
 
-- Opens in a dialog from a `▶ play` button in the banner's bottom-right
-  corner, or the terminal's `play` command. Esc or a close button leaves.
+- Opens in a dialog from a `▶ play` button in the banner's top-right
+  corner (the vertical name fills the bottom-right), or the terminal's `play`
+  command. Esc or a close button leaves.
 - 320 x 120 logical pixels, scaled up with crisp pixels, three tones from the
   current theme.
 - The dog (a small 1-bit sprite made from `public/dog.png` at load) runs
