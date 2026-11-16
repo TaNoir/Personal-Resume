@@ -2,8 +2,8 @@ import Ago from "@/components/Ago";
 import Clock from "@/components/Clock";
 import Greeting from "@/components/Greeting";
 import CopyButton from "@/components/CopyButton";
-import DitherSky from "@/components/DitherSky";
 import Reveals from "@/components/Reveals";
+import SkyBanner from "@/components/SkyBanner";
 import StackChip from "@/components/StackChip";
 import Stickers from "@/components/Stickers";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -55,13 +55,7 @@ export default async function Home() {
       </div>
 
       <header>
-        <figure className="banner">
-          <DitherSky />
-          <figcaption aria-hidden="true">
-            <span>sky.raw / 1-bit / {resume.handle}</span>
-            <span lang="ja">エヴァンダー</span>
-          </figcaption>
-        </figure>
+        <SkyBanner handle={resume.handle} />
 
         <div className="who">
           {/* The dog is one picture cut in two along the mouth, so the lower

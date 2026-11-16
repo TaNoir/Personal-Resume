@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { fallbackSky, type SkyState } from "@/lib/sky";
 
 const W = 304;
 const H = 171;
@@ -16,6 +17,9 @@ const STARS = [
   { x: 0.4, y: 0.84, r: 0.12, phase: 4.4 },
 ];
 
+// The moon hangs top-centre, clear of the stars' arms.
+const MOON = { x: 0.5, y: 0.27, r: 0.11 };
+
 // [cloud, mid-tone, ground] for each theme. In light mode the sky is
 // printed in ink on paper instead of lit on black.
 const NIGHT = [[220, 234, 255], [52, 110, 222], [9, 9, 11]];
@@ -25,9 +29,20 @@ const PAPER = [[16, 16, 20], [47, 95, 214], [232, 230, 224]];
  * The banner art: a low-resolution sky of drifting cloud, crushed to three
  * tones with ordered dithering and punched through with four-point stars.
  * The cloud thickens wherever the pointer is.
+ *
+ * `sky` is the real weather over Davao: it sets how cloudy it is, whether it
+ * rains, and whether it is night (stars and the moon at its real phase) or
+ * day (one big star left as the sun). Until it arrives, a plain sky is drawn.
  */
-export default function DitherSky() {
+export default function DitherSky({ sky }: { sky: SkyState | null }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const skyRef = useRef<SkyState | null>(sky);
+  const redraw = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    skyRef.current = sky;
+    redraw.current?.();
+  }, [sky]);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -64,9 +79,19 @@ export default function DitherSky() {
     let raf = 0;
     let last = 0;
     let visible = true;
+    const plain = fallbackSky(new Date());
 
     const draw = (now: number) => {
       const t = now / 1000;
+      const sky = skyRef.current ?? plain;
+      const stars = sky.night ? STARS : [STARS[1]];
+      const moonX = MOON.x * W;
+      const moonY = MOON.y * H;
+      const moonR = MOON.r * H;
+      const phase = Math.cos(2 * Math.PI * sky.moon);
+      const rainEvery = sky.rain === 2 ? 9 : 17;
+      const rainT = (t * 90) | 0;
+      const rainDash = (t * 60) | 0;
       const [PALE, BLUE, DARK] = document.documentElement.dataset.theme === "light" ? PAPER : NIGHT;
       const tearRow = !still && Math.random() < 0.12 ? (Math.random() * H) | 0 : -1;
       const tearShift = ((Math.random() - 0.5) * 36) | 0;
@@ -77,6 +102,7 @@ export default function DitherSky() {
           const sx = x + shift;
           let v = cloud(sx * 0.02 + t * 0.045, y * 0.034 + t * 0.012);
           v = (v - 0.34) * 2.3 + (y / H) * 0.22;
+          v += (sky.cloud - 0.5) * 0.5;
 
           if (pointer.x >= 0) {
             const d = Math.hypot(sx - pointer.x, (y - pointer.y) * 1.15);
@@ -88,8 +114,21 @@ export default function DitherSky() {
           if (v > edge * 0.7 + 0.42) tone = PALE;
           else if (v > edge * 0.7 + 0.08) tone = BLUE;
 
+          // The moon, lit on the side its real phase says. A thin rim keeps a
+          // new moon visible as a ring.
+          if (sky.night) {
+            const dx = (sx - moonX) / moonR;
+            const dy = (y - moonY) / moonR;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < 1) {
+              const edge = Math.sqrt(1 - dy * dy);
+              const lit = sky.moon <= 0.5 ? dx > phase * edge : dx < -phase * edge;
+              tone = lit || d2 > 0.8 ? PALE : DARK;
+            }
+          }
+
           // Astroid test: |dx|^.5 + |dy|^.5 < r^.5 is a concave four-point star.
-          for (const s of STARS) {
+          for (const s of stars) {
             const r = s.r * H * (1 + Math.sin(t * 0.6 + s.phase) * 0.06);
             const reach =
               (Math.sqrt(Math.abs(sx - s.x * W)) + Math.sqrt(Math.abs(y - s.y * H))) / Math.sqrt(r);
@@ -101,6 +140,16 @@ export default function DitherSky() {
               tone = PALE;
               break;
             }
+          }
+
+          // Rain: slanted dashes that slide down and left, in front of
+          // everything, pale on dark and blue on pale cloud.
+          if (
+            sky.rain > 0 &&
+            (((x + y * 0.5 + rainT) | 0) % rainEvery) === 0 &&
+            ((y * 3 + x + rainDash) & 7) < 3
+          ) {
+            tone = tone === PALE ? BLUE : PALE;
           }
 
           const i = (y * W + x) * 4;
@@ -135,6 +184,7 @@ export default function DitherSky() {
     io.observe(canvas);
 
     draw(0);
+    redraw.current = () => draw(still ? 0 : performance.now());
     if (!still) {
       canvas.addEventListener("pointermove", move);
       canvas.addEventListener("pointerleave", leave);
@@ -142,6 +192,7 @@ export default function DitherSky() {
     }
 
     return () => {
+      redraw.current = null;
       cancelAnimationFrame(raf);
       io.disconnect();
       canvas.removeEventListener("pointermove", move);
