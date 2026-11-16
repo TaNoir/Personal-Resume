@@ -238,6 +238,23 @@ export default function RotPlayer() {
     setElapsed(0);
   };
 
+  // The terminal drives the radio with "rot:radio" events. They always come
+  // from a key the visitor pressed, so the browser lets the sound start.
+  const controls = useRef({ playing, toggle, skip });
+  useEffect(() => {
+    controls.current = { playing, toggle, skip };
+  });
+  useEffect(() => {
+    const command = (e: Event) => {
+      const action = (e as CustomEvent<string>).detail;
+      const c = controls.current;
+      if (action === "next") c.skip();
+      else if ((action === "play" && !c.playing) || (action === "pause" && c.playing)) c.toggle();
+    };
+    window.addEventListener("rot:radio", command);
+    return () => window.removeEventListener("rot:radio", command);
+  }, []);
+
   const t = TRACKS[track];
 
   return (

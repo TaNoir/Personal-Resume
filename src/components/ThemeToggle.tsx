@@ -1,43 +1,17 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-
-type Theme = "dark" | "light";
-
-const listeners = new Set<() => void>();
-const read = (): Theme => (document.documentElement.dataset.theme === "light" ? "light" : "dark");
-
-const subscribe = (notify: () => void) => {
-  listeners.add(notify);
-  return () => listeners.delete(notify);
-};
-
-function apply(theme: Theme) {
-  document.documentElement.dataset.theme = theme;
-  try {
-    localStorage.setItem("theme", theme);
-  } catch {
-    // Private mode or blocked storage: the choice just won't be remembered.
-  }
-  listeners.forEach((notify) => notify());
-}
+import { readTheme, setTheme, subscribeTheme, type Theme } from "@/lib/theme";
 
 /**
  * Switches between the dark and light palettes. Where the browser supports
  * it, the new palette tears in across the page in hard steps.
  */
 export default function ThemeToggle() {
-  const theme = useSyncExternalStore(subscribe, read, () => "dark" as Theme);
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "dark" as Theme);
   const next: Theme = theme === "dark" ? "light" : "dark";
 
-  const toggle = () => {
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (calm || !document.startViewTransition) {
-      apply(next);
-      return;
-    }
-    document.startViewTransition(() => apply(next));
-  };
+  const toggle = () => setTheme(next);
 
   return (
     <button

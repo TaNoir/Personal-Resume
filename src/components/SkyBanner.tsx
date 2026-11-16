@@ -40,6 +40,11 @@ export default function SkyBanner({ handle }: { handle: string }) {
 
   const live = sky && caption(sky);
 
+  // The terminal's "weather" command reads the caption from here.
+  useEffect(() => {
+    if (live) document.documentElement.dataset.sky = live;
+  }, [live]);
+
   return (
     <figure className="banner">
       <DitherSky sky={sky} />

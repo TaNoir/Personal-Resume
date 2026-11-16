@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import RotPlayer from "@/components/RotPlayer";
 import Secrets from "@/components/Secrets";
 import StarTrail from "@/components/StarTrail";
+import Terminal from "@/components/Terminal";
 import { resume } from "@/content/resume";
 import "./globals.css";
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <RotPlayer />
         <StarTrail />
         <Secrets />
+        <Terminal />
         <Analytics />
       </body>
     </html>
