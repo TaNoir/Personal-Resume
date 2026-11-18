@@ -27,9 +27,9 @@ export const resume = {
     },
     {
       group: "database",
-      items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)", "Upstash (Redis)", "IndexedDB"],
+      items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)", "IndexedDB"],
     },
-    { group: "ai", items: ["Google Gemini", "Groq"] },
+    { group: "ai", items: ["Google Gemini"] },
     { group: "devops & cloud", items: ["Git", "GitHub", "Vercel", "Render"] },
     { group: "tools", items: ["VS Code", "Visual Studio", "xUnit"] },
   ],
@@ -38,11 +38,11 @@ export const resume = {
       name: "Kadr",
       year: "2026",
       blurb:
-        "Upload a photo and Kadr finds the shot hiding inside it. Two AIs race to pick the strongest crop, a virtual camera glides and zooms onto it, and a small film studio finishes it with looks and borders, exported at full resolution. It's plain JavaScript with no dependencies, installs as an app, and gives guests a few free scans a day.",
+        "Upload a photo and Kadr finds the shot hiding inside it. Google Gemini studies a sharp copy in fine detail and picks the strongest crop, a virtual camera glides and zooms onto it, and a small film studio finishes it with looks and borders, exported at full resolution. It's plain JavaScript with no dependencies and installs as an app. Guests frame their photos by hand or try the demos, and their photos never leave the device.",
       url: "https://kadrph.vercel.app/",
       host: "kadrph.vercel.app",
-      tags: ["JavaScript", "Node.js", "Google Gemini", "Groq", "Upstash Redis", "Canvas API", "PWA"],
-      note: "Live, 5 free AI scans a day",
+      tags: ["JavaScript", "Node.js", "Google Gemini", "Canvas API", "IndexedDB", "PWA"],
+      note: "Live, AI scans are owner-only",
       // Screenshots of each landing page; focus is the part a crop keeps.
       cover: "/projects/kadr.webp",
       focus: "50% 50%",

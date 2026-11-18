@@ -147,10 +147,6 @@ export const stackInfo: Record<string, { kind: string; what: string }> = {
     kind: "Server runtime",
     what: "Runs JavaScript on a server instead of in the browser, so one language covers both.",
   },
-  "Upstash (Redis)": {
-    kind: "Database hosting",
-    what: "A tiny, very fast cloud database, good for counters like daily usage limits.",
-  },
   IndexedDB: {
     kind: "Browser database",
     what: "A database built into the browser that keeps your data on your own device.",
@@ -158,9 +154,5 @@ export const stackInfo: Record<string, { kind: string; what: string }> = {
   "Google Gemini": {
     kind: "AI model",
     what: "Google's AI that can look at pictures and describe or judge what's in them.",
-  },
-  Groq: {
-    kind: "AI service",
-    what: "Runs AI models extremely fast, so answers come back in about a second.",
   },
 };
