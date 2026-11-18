@@ -1,4 +1,5 @@
 import Ago from "@/components/Ago";
+import Carousel from "@/components/Carousel";
 import Clock from "@/components/Clock";
 import Greeting from "@/components/Greeting";
 import CopyButton from "@/components/CopyButton";
@@ -205,14 +206,9 @@ export default async function Home() {
           <h2 className="head">
             projects <span>/ {pad(resume.projects.length)}</span>
           </h2>
-          <div className="projects">
-            {resume.projects.map((p, i) => (
-              <article
-                key={p.name}
-                className="panel project"
-                data-reveal="slide"
-                style={{ "--i": i } as React.CSSProperties}
-              >
+          <Carousel label="Projects">
+            {resume.projects.map((p) => (
+              <article key={p.name} className="panel project">
                 <div className="project-art" aria-hidden="true">
                   <Star size={56} />
                 </div>
@@ -232,7 +228,7 @@ export default async function Home() {
                 </div>
               </article>
             ))}
-          </div>
+          </Carousel>
         </section>
 
         <section id="record">
