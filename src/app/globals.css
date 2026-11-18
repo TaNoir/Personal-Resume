@@ -1608,7 +1608,10 @@ footer {
   gap: 0.25rem 0.75rem;
 }
 
+/* The terminal is for a mouse and keyboard, so phones and tablets don't
+   get the button. Keep in step with DESKTOP in Terminal.tsx. */
 .term-open {
+  display: none;
   padding: 0.2em 0.55em;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -1619,6 +1622,12 @@ footer {
     background-color 0.12s,
     color 0.12s,
     border-color 0.12s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .term-open {
+    display: inline-block;
+  }
 }
 
 .term-open:hover,
@@ -1703,14 +1712,6 @@ footer {
   background: rgb(0 0 0 / 0.3);
 }
 
-/* On wide screens the terminal docks at the bottom like a console drawer,
-   leaving the banner and the dog in view. Phones keep it centred, where the
-   on-screen keyboard can't push it out of sight. */
-@media (min-width: 48rem) {
-  .term {
-    margin-bottom: 1.5rem;
-  }
-}
 
 @keyframes term-in {
   from { clip-path: inset(48% 0 48% 0); }
@@ -1724,6 +1725,17 @@ footer {
   padding: 0.3rem 0.4rem 0.3rem 0.75rem;
   background: var(--pale);
   color: var(--ink);
+}
+
+/* The terminal's title bar is its drag handle. */
+.term .term-bar {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.term.is-dragging .term-bar {
+  cursor: grabbing;
 }
 
 .term-x {

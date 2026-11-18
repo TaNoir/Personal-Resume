@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { findSecret, useSecrets } from "@/lib/secrets";
 import { MAX_INPUT, run, type Effect } from "@/lib/terminal";
 import { setTheme } from "@/lib/theme";
@@ -14,8 +14,12 @@ const typing = (el: EventTarget | null) =>
 
 const send = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
 
+/** A mouse and a keyboard: the terminal is a desktop-only secret. */
+export const DESKTOP = "(hover: hover) and (pointer: fine)";
+
 /**
- * A small fake shell. Opens with the backtick key or the footer button.
+ * A small fake shell. Opens with the backtick key or the footer button, on
+ * desktops only, centred, and can be dragged by its title bar.
  * Everything it prints is plain text.
  */
 export default function Terminal() {
@@ -28,6 +32,15 @@ export default function Terminal() {
   const recall = useRef(-1);
   const [lines, setLines] = useState<Line[]>([]);
   const found = useSecrets().length;
+  // Where the window has been dragged to, from the centre.
+  const offset = useRef({ x: 0, y: 0 });
+  const drag = useRef<{ px: number; py: number; x: number; y: number; box: DOMRect } | null>(null);
+  const dragged = useRef(false);
+
+  const place = (x: number, y: number) => {
+    offset.current = { x, y };
+    if (dialog.current) dialog.current.style.translate = x || y ? `${x}px ${y}px` : "";
+  };
 
   const print = (texts: string[], echo = false) => {
     if (!texts.length) return;
@@ -38,7 +51,8 @@ export default function Terminal() {
 
   const open = () => {
     const d = dialog.current;
-    if (!d || d.open) return;
+    if (!d || d.open || !window.matchMedia(DESKTOP).matches) return;
+    place(0, 0);
     d.showModal();
     input.current?.focus();
     if (!greeted.current) {
@@ -110,6 +124,32 @@ export default function Terminal() {
     result.effects.forEach(apply);
   };
 
+  // Drag by the title bar, kept inside the window.
+  const grab = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 || (e.target as Element).closest("button") || !dialog.current) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const box = dialog.current.getBoundingClientRect();
+    drag.current = { px: e.clientX, py: e.clientY, ...offset.current, box };
+    dragged.current = false;
+    dialog.current.classList.add("is-dragging");
+  };
+
+  const move = (e: PointerEvent<HTMLDivElement>) => {
+    const g = drag.current;
+    if (!g) return;
+    const dx = Math.min(Math.max(e.clientX - g.px, -g.box.left), window.innerWidth - g.box.right);
+    const dy = Math.min(Math.max(e.clientY - g.py, -g.box.top), window.innerHeight - g.box.bottom);
+    if (Math.abs(dx) + Math.abs(dy) > 3) dragged.current = true;
+    place(g.x + dx, g.y + dy);
+  };
+
+  const drop = () => {
+    drag.current = null;
+    dialog.current?.classList.remove("is-dragging");
+    input.current?.focus();
+  };
+
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
     const el = e.currentTarget;
     if (e.key === "Enter") {
@@ -135,11 +175,22 @@ export default function Terminal() {
         // Leave a text selection alone so printed lines can be copied, even
         // when the drag ended out on the backdrop.
         if (window.getSelection()?.isCollapsed === false) return;
+        // The end of a drag is not a click on the backdrop.
+        if (dragged.current) {
+          dragged.current = false;
+          return;
+        }
         if (e.target === e.currentTarget) dialog.current?.close();
         else if (!(e.target instanceof HTMLButtonElement)) input.current?.focus();
       }}
     >
-      <div className="term-bar">
+      <div
+        className="term-bar"
+        onPointerDown={grab}
+        onPointerMove={move}
+        onPointerUp={drop}
+        onPointerCancel={drop}
+      >
         <span>null.rot — /bin/sh</span>
         <button
           type="button"
