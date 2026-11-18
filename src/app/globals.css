@@ -822,6 +822,11 @@ a.tag:hover {
 
 /* ---------- project ---------- */
 
+.projects {
+  display: grid;
+  gap: 1rem;
+}
+
 .project {
   display: grid;
   grid-template-columns: 11rem minmax(0, 1fr);

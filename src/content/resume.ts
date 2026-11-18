@@ -19,17 +19,31 @@ export const resume = {
     },
     {
       group: "frontend",
-      items: ["HTML", "CSS", "React", "Next.js", "Tailwind CSS", "Bootstrap"],
+      items: ["HTML", "CSS", "React", "Next.js", "Tailwind CSS", "Bootstrap", "Canvas API", "PWA"],
     },
-    { group: "backend", items: ["Laravel", "ASP.NET", "Entity Framework Core", "SignalR", "Supabase", "REST API"] },
+    {
+      group: "backend",
+      items: ["Node.js", "Laravel", "ASP.NET", "Entity Framework Core", "SignalR", "Supabase", "REST API"],
+    },
     {
       group: "database",
-      items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)"],
+      items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)", "Upstash (Redis)", "IndexedDB"],
     },
+    { group: "ai", items: ["Google Gemini", "Groq"] },
     { group: "devops & cloud", items: ["Git", "GitHub", "Vercel", "Render"] },
     { group: "tools", items: ["VS Code", "Visual Studio", "xUnit"] },
   ],
   projects: [
+    {
+      name: "Kadr",
+      year: "2026",
+      blurb:
+        "Upload a photo and Kadr finds the shot hiding inside it. Two AIs race to pick the strongest crop, a virtual camera glides and zooms onto it, and a small film studio finishes it with looks and borders, exported at full resolution. It's plain JavaScript with no dependencies, installs as an app, and gives guests a few free scans a day.",
+      url: "https://kadrph.vercel.app/",
+      host: "kadrph.vercel.app",
+      tags: ["JavaScript", "Node.js", "Google Gemini", "Groq", "Upstash Redis", "Canvas API", "PWA"],
+      note: "Live, 5 free AI scans a day",
+    },
     {
       name: "MobileOps Connect",
       year: "2025",

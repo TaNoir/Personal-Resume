@@ -203,27 +203,36 @@ export default async function Home() {
 
         <section id="project">
           <h2 className="head">
-            project <span>/ {pad(resume.projects.length)}</span>
+            projects <span>/ {pad(resume.projects.length)}</span>
           </h2>
-          <article className="panel project" data-reveal="slide">
-            <div className="project-art" aria-hidden="true">
-              <Star size={56} />
-            </div>
-            <div className="project-body">
-              <h3>{project.name}</h3>
-              <p>{project.blurb}</p>
-              <ul className="meta">
-                <li>{project.year}</li>
-                {project.tags.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-                <li>{project.note}</li>
-              </ul>
-              <a className="link" href={project.url} target="_blank" rel="noreferrer">
-                Visit {project.host} <Arrow />
-              </a>
-            </div>
-          </article>
+          <div className="projects">
+            {resume.projects.map((p, i) => (
+              <article
+                key={p.name}
+                className="panel project"
+                data-reveal="slide"
+                style={{ "--i": i } as React.CSSProperties}
+              >
+                <div className="project-art" aria-hidden="true">
+                  <Star size={56} />
+                </div>
+                <div className="project-body">
+                  <h3>{p.name}</h3>
+                  <p>{p.blurb}</p>
+                  <ul className="meta">
+                    <li>{p.year}</li>
+                    {p.tags.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                    <li>{p.note}</li>
+                  </ul>
+                  <a className="link" href={p.url} target="_blank" rel="noreferrer">
+                    Visit {p.host} <Arrow />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section id="record">

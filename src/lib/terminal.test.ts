@@ -14,7 +14,11 @@ describe("terminal", () => {
   it("answers the content commands from resume.ts", () => {
     expect(run("whoami", ctx).lines.join("\n")).toContain("Evander");
     expect(run("stack", ctx).lines.join("\n")).toContain("PowerShell");
-    expect(run("project", ctx).lines.join("\n")).toContain("MobileOps Connect");
+    const projects = run("project", ctx).lines.join("\n");
+    expect(projects).toContain("Kadr");
+    expect(projects).toContain("MobileOps Connect");
+    expect(run("projects", ctx).lines).toEqual(run("project", ctx).lines);
+    expect(run("stack", ctx).lines.join("\n")).toContain("Google Gemini");
     expect(run("contact", ctx).lines.join("\n")).toContain("github.com/TaNoir");
   });
   it("is case-insensitive and trims", () => {

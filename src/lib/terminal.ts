@@ -21,7 +21,7 @@ const HELP = [
   "commands:",
   "  whoami              who runs this place",
   "  stack               what I build with",
-  "  project             latest project",
+  "  project             my projects",
   "  contact             how to reach me",
   "  weather             the sky over davao",
   "  theme dark|light    flip the lights",
@@ -58,10 +58,16 @@ export function run(input: string, ctx: Ctx): Result {
       );
     case "stack":
       return say(...resume.stack.map((g) => `${g.group.padEnd(15)}${g.items.join(", ")}`));
-    case "project": {
-      const p = resume.projects[0];
-      return say(`${p.name} (${p.year})`, p.blurb, bare(p.url));
-    }
+    case "project":
+    case "projects":
+      return say(
+        ...resume.projects.flatMap((p, i) => [
+          ...(i ? [""] : []),
+          `${p.name} (${p.year})`,
+          p.blurb,
+          bare(p.url),
+        ]),
+      );
     case "contact":
       return say(
         ...resume.emails.map((e) => `${e.label.padEnd(10)}${e.address}`),
