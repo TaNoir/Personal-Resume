@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { konamiStep } from "@/lib/konami";
+import { DESKTOP } from "@/components/Terminal";
 import { SECRET_IDS, findSecret } from "@/lib/secrets";
 
 const TOAST_MS = 3000;
@@ -63,7 +64,9 @@ export default function Secrets() {
     const found = (e: Event) => {
       const { id, count } = (e as CustomEvent<{ id: string; count: number }>).detail ?? {};
       if (!id) return;
-      setToast(`secret found ${count}/${SECRET_IDS.length}: ${id}`);
+      // Phones can't reach most secrets, so they aren't told how many there are.
+      const tally = window.matchMedia(DESKTOP).matches ? ` ${count}/${SECRET_IDS.length}` : "";
+      setToast(`secret found${tally}: ${id}`);
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => setToast(null), TOAST_MS);
     };

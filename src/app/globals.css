@@ -1601,17 +1601,23 @@ footer {
 
 /* ---------- secrets ---------- */
 
+/* Most secrets need the terminal or a keyboard, so phones and tablets get
+   neither the count nor the terminal button. Keep in step with DESKTOP in
+   Terminal.tsx. */
 .secret-count {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.75rem;
 }
 
-/* The terminal is for a mouse and keyboard, so phones and tablets don't
-   get the button. Keep in step with DESKTOP in Terminal.tsx. */
+@media (hover: hover) and (pointer: fine) {
+  .secret-count {
+    display: flex;
+  }
+}
+
 .term-open {
-  display: none;
   padding: 0.2em 0.55em;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -1622,12 +1628,6 @@ footer {
     background-color 0.12s,
     color 0.12s,
     border-color 0.12s;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .term-open {
-    display: inline-block;
-  }
 }
 
 .term-open:hover,
