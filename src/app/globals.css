@@ -1316,8 +1316,11 @@ footer {
 /* ---------- small screens ---------- */
 
 @media (max-width: 45rem) {
+  /* Slides match the tallest card, so the text takes the spare height
+     and the cover stays the size of its screenshot. */
   .project {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
   }
 
   .project-cover {
