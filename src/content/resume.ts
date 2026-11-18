@@ -43,6 +43,9 @@ export const resume = {
       host: "kadrph.vercel.app",
       tags: ["JavaScript", "Node.js", "Google Gemini", "Groq", "Upstash Redis", "Canvas API", "PWA"],
       note: "Live, 5 free AI scans a day",
+      // Screenshots of each landing page; focus is the part a crop keeps.
+      cover: "/projects/kadr.webp",
+      focus: "50% 50%",
     },
     {
       name: "MobileOps Connect",
@@ -53,6 +56,8 @@ export const resume = {
       host: "moppscon.runasp.net",
       tags: ["C#", "ASP.NET Core MVC", "SQL Server", "SignalR", "Tailwind CSS", "PWA"],
       note: "Live, behind a login",
+      cover: "/projects/mobileops.webp",
+      focus: "0% 50%",
     },
   ],
   education: {

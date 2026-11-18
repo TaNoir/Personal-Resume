@@ -822,79 +822,47 @@ a.tag:hover {
 
 /* ---------- project ---------- */
 
-/* A ring of project covers turning in 3D, after a Uiverse.io carousel by
-   musashi-13. ProjectRing sets --spin and each cover's brightness. */
-.orbit-stage {
-  --w: 7.5rem;
-  --h: 10rem;
-  --r: 14rem;
+/* One project at a time, swiped, dragged or stepped sideways. The small
+   padding keeps focus outlines from being clipped by the scroller. */
+.carousel-track {
   position: relative;
-  height: 17rem;
-  perspective: 900px;
-  overflow: hidden;
-}
-
-.orbit-spin {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform: translateY(-0.6rem) rotateX(-6deg) rotateY(var(--spin, 0deg));
-}
-
-.orbit-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  justify-items: center;
-  align-items: center;
-  width: var(--w);
-  height: var(--h);
-  padding: 0.5rem 0.4rem;
-  border: 1px solid var(--line);
-  background:
-    radial-gradient(circle, var(--blue) 0 1.2px, transparent 1.6px) 0 0 / 6px 6px,
-    radial-gradient(circle at 30% 20%, var(--plate), var(--ink) 75%);
-  color: var(--pale);
-  font: 400 0.6875rem/1.1 var(--font-pixel), monospace;
-  letter-spacing: 0.04em;
-  transform: translate(-50%, -50%) rotateY(calc(var(--k) * var(--step))) translateZ(var(--r));
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 1rem;
+  margin: -4px;
+  padding: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 4px;
+  scrollbar-width: none;
 }
 
-.orbit-card > span:first-child {
-  justify-self: start;
+.carousel-track::-webkit-scrollbar {
+  display: none;
 }
 
-.orbit-name {
-  max-width: 100%;
-  padding: 0.3em 0.45em;
-  background: var(--ink);
-  font-size: 0.75rem;
-  text-align: center;
-  overflow-wrap: anywhere;
+.carousel-track:focus-visible {
+  outline-offset: -1px;
 }
 
-button.orbit-card:hover,
-.orbit-card[aria-pressed="true"] {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 1px var(--blue);
+@media (hover: hover) and (pointer: fine) {
+  .carousel-track {
+    cursor: grab;
+  }
 }
 
-.orbit-card.is-empty {
-  border-style: dashed;
-  background:
-    radial-gradient(circle, var(--line) 0 1px, transparent 1.4px) 0 0 / 6px 6px,
-    var(--panel);
-  color: var(--dim);
-  pointer-events: none;
+/* While the mouse drags, the track follows it freely. */
+.carousel-track.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
 }
 
-.orbit-panels {
-  margin-top: 0.5rem;
+.carousel-slide {
+  display: grid;
+  scroll-snap-align: start;
 }
 
 .carousel-nav {
@@ -960,43 +928,77 @@ button.orbit-card:hover,
   color: var(--blue);
 }
 
-/* The chosen project's card fades in as it swaps. */
-@media (prefers-reduced-motion: no-preference) {
-  .orbit-panels > div:not([hidden]) {
-    animation: orbit-in 0.45s var(--ease-out);
-  }
-}
-
-@keyframes orbit-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
+.carousel-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .project {
   display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr);
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
 }
 
-/* Halftone plate with a star punched out of it. */
-.project-art {
+/* A screenshot of the live site in a scrappy little browser window. */
+.project-cover {
   display: grid;
-  place-items: center;
-  min-height: 9rem;
+  grid-template-rows: auto 1fr;
+  min-height: 17rem;
   border-right: 1px solid var(--line);
-  background:
-    radial-gradient(circle, var(--blue) 0 1.6px, transparent 2px) 0 0 / 7px 7px,
-    radial-gradient(circle at 30% 20%, var(--plate), var(--ink) 75%);
-  color: var(--pale);
+  background: var(--ink);
 }
 
-.project-art .star {
+.cover-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--dim);
+  font: 400 0.6875rem/1 var(--font-pixel), monospace;
+  letter-spacing: 0.04em;
+}
+
+.cover-bar i {
+  width: 0.45rem;
+  height: 0.45rem;
+  border: 1px solid var(--line);
+}
+
+.cover-bar i:first-child {
+  border-color: var(--blue);
+  background: var(--blue);
+}
+
+.cover-bar span {
+  overflow: hidden;
+  margin-left: 0.35rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cover-shot {
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-shot img {
+  object-fit: cover;
   transition: transform 0.9s var(--ease-out);
 }
 
-.project:hover .project-art .star {
-  transform: rotate(90deg) scale(1.15);
+/* A faint halftone over the shot keeps it in the site's print look. */
+.cover-shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--blue) 0 0.8px, transparent 1.2px) 0 0 / 5px 5px;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.project:hover .cover-shot img {
+  transform: scale(1.03);
 }
 
 .project-body {
@@ -1313,6 +1315,22 @@ footer {
 
 /* ---------- small screens ---------- */
 
+@media (max-width: 45rem) {
+  .project {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-cover {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cover-shot {
+    aspect-ratio: 16 / 10;
+  }
+}
+
 @media (max-width: 560px) {
   .sky {
     aspect-ratio: 4 / 3;
@@ -1323,21 +1341,10 @@ footer {
     height: 4rem;
   }
 
-  .project {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .orbit-stage {
-    --w: 5.25rem;
-    --h: 7rem;
-    --r: 9.5rem;
-    height: 12.5rem;
-  }
-
-  .project-art {
-    min-height: 6.5rem;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
+  /* A sliver of the next card hints that the row swipes. */
+  .carousel-track {
+    grid-auto-columns: calc(100% - 2rem);
+    gap: 0.75rem;
   }
 
   .reach-label {

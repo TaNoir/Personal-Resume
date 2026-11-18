@@ -1,7 +1,8 @@
+import Image from "next/image";
 import Ago from "@/components/Ago";
+import Carousel from "@/components/Carousel";
 import Clock from "@/components/Clock";
 import Greeting from "@/components/Greeting";
-import ProjectRing from "@/components/ProjectRing";
 import CopyButton from "@/components/CopyButton";
 import Reveals from "@/components/Reveals";
 import SecretCount from "@/components/SecretCount";
@@ -23,15 +24,6 @@ function Arrow() {
   return (
     <svg className="arrow" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
       <path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" strokeWidth="1.75" />
-    </svg>
-  );
-}
-
-/** The four-point star that runs through the whole site. */
-function Star({ size = 14 }: { size?: number }) {
-  return (
-    <svg className="star" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <path d="M12 0c.9 7.2 4.8 11.1 12 12-7.2.9-11.1 4.800-12 12-.9-7.200-4.800-11.100-12-12 7.200-.9 11.100-4.800 12-12Z" fill="currentColor" />
     </svg>
   );
 }
@@ -206,12 +198,28 @@ export default async function Home() {
           <h2 className="head">
             projects <span>/ {pad(resume.projects.length)}</span>
           </h2>
-          <ProjectRing items={resume.projects}>
-            {resume.projects.map((p) => (
+          <Carousel label="Projects">
+            {resume.projects.map((p, i) => (
               <article key={p.name} className="panel project">
-                <div className="project-art" aria-hidden="true">
-                  <Star size={56} />
-                </div>
+                <figure className="project-cover">
+                  <div className="cover-bar" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                    <span>{p.host}</span>
+                  </div>
+                  <div className="cover-shot">
+                    <Image
+                      src={p.cover}
+                      alt={`${p.name}'s landing page`}
+                      fill
+                      sizes="(max-width: 45rem) 100vw, 26rem"
+                      draggable={false}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      style={{ objectPosition: p.focus }}
+                    />
+                  </div>
+                </figure>
                 <div className="project-body">
                   <h3>{p.name}</h3>
                   <p>{p.blurb}</p>
@@ -228,7 +236,7 @@ export default async function Home() {
                 </div>
               </article>
             ))}
-          </ProjectRing>
+          </Carousel>
         </section>
 
         <section id="record">
