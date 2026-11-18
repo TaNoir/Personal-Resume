@@ -1,7 +1,7 @@
 import Ago from "@/components/Ago";
-import Carousel from "@/components/Carousel";
 import Clock from "@/components/Clock";
 import Greeting from "@/components/Greeting";
+import ProjectRing from "@/components/ProjectRing";
 import CopyButton from "@/components/CopyButton";
 import Reveals from "@/components/Reveals";
 import SecretCount from "@/components/SecretCount";
@@ -206,7 +206,7 @@ export default async function Home() {
           <h2 className="head">
             projects <span>/ {pad(resume.projects.length)}</span>
           </h2>
-          <Carousel label="Projects">
+          <ProjectRing items={resume.projects}>
             {resume.projects.map((p) => (
               <article key={p.name} className="panel project">
                 <div className="project-art" aria-hidden="true">
@@ -228,7 +228,7 @@ export default async function Home() {
                 </div>
               </article>
             ))}
-          </Carousel>
+          </ProjectRing>
         </section>
 
         <section id="record">
