@@ -110,6 +110,51 @@ export default async function Home() {
           </div>
         </section>
 
+        <section id="project">
+          <h2 className="head">
+            projects <span>/ {pad(resume.projects.length)}</span>
+          </h2>
+          <Carousel label="Projects" titles={resume.projects.map((p) => p.name)}>
+            {resume.projects.map((p, i) => (
+              <article key={p.name} className="panel project">
+                <figure className="project-cover">
+                  <div className="cover-bar" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                    <span>{p.host}</span>
+                  </div>
+                  <div className="cover-shot">
+                    <Image
+                      src={p.cover}
+                      alt={`${p.name}'s landing page`}
+                      fill
+                      sizes="(max-width: 45rem) 100vw, 26rem"
+                      draggable={false}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      style={{ objectPosition: p.focus }}
+                    />
+                  </div>
+                </figure>
+                <div className="project-body">
+                  <h3>{p.name}</h3>
+                  <p>{p.blurb}</p>
+                  <ul className="meta">
+                    <li>{p.year}</li>
+                    {p.tags.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                    <li>{p.note}</li>
+                  </ul>
+                  <a className="link" href={p.url} target="_blank" rel="noreferrer">
+                    Visit {p.host} <Arrow />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </Carousel>
+        </section>
+
         {graph && (
           <section id="github">
             <h2 className="head">
@@ -192,51 +237,6 @@ export default async function Home() {
               </div>
             ))}
           </div>
-        </section>
-
-        <section id="project">
-          <h2 className="head">
-            projects <span>/ {pad(resume.projects.length)}</span>
-          </h2>
-          <Carousel label="Projects">
-            {resume.projects.map((p, i) => (
-              <article key={p.name} className="panel project">
-                <figure className="project-cover">
-                  <div className="cover-bar" aria-hidden="true">
-                    <i />
-                    <i />
-                    <i />
-                    <span>{p.host}</span>
-                  </div>
-                  <div className="cover-shot">
-                    <Image
-                      src={p.cover}
-                      alt={`${p.name}'s landing page`}
-                      fill
-                      sizes="(max-width: 45rem) 100vw, 26rem"
-                      draggable={false}
-                      loading={i === 0 ? "eager" : "lazy"}
-                      style={{ objectPosition: p.focus }}
-                    />
-                  </div>
-                </figure>
-                <div className="project-body">
-                  <h3>{p.name}</h3>
-                  <p>{p.blurb}</p>
-                  <ul className="meta">
-                    <li>{p.year}</li>
-                    {p.tags.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                    <li>{p.note}</li>
-                  </ul>
-                  <a className="link" href={p.url} target="_blank" rel="noreferrer">
-                    Visit {p.host} <Arrow />
-                  </a>
-                </div>
-              </article>
-            ))}
-          </Carousel>
         </section>
 
         <section id="record">

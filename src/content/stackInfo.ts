@@ -51,6 +51,10 @@ export const stackInfo: Record<string, { kind: string; what: string }> = {
     kind: "Web framework",
     what: "Built on React. Handles pages, loading speed and deployment. This site runs on it.",
   },
+  Svelte: {
+    kind: "Frontend framework",
+    what: "Like React, but it does most of its work before the page loads, so sites stay small and fast.",
+  },
   "Tailwind CSS": {
     kind: "Styling toolkit",
     what: "Ready-made style building blocks you apply straight to the page.",

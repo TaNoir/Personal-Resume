@@ -31,7 +31,16 @@ function Chevron({ flip = false }: { flip?: boolean }) {
  * browser's own, so touch, trackpads and the keyboard all work; a mouse can
  * drag it too, and the buttons and bars jump it to a slide.
  */
-export default function Carousel({ label, children }: { label: string; children: ReactNode }) {
+export default function Carousel({
+  label,
+  titles,
+  children,
+}: {
+  label: string;
+  /** Names for the slides. With them the bars become named tabs. */
+  titles?: string[];
+  children: ReactNode;
+}) {
   const slides = Children.toArray(children);
   const n = slides.length;
   const id = useId();
@@ -163,7 +172,7 @@ export default function Carousel({ label, children }: { label: string; children:
             className="carousel-slide"
             role="group"
             aria-roledescription="slide"
-            aria-label={`${i + 1} of ${n}`}
+            aria-label={titles?.[i] ?? `${i + 1} of ${n}`}
           >
             {slide}
           </div>
@@ -171,16 +180,18 @@ export default function Carousel({ label, children }: { label: string; children:
       </div>
       {n > 1 && (
         <div className="carousel-nav">
-          <div className="carousel-bars">
+          <div className={titles ? "carousel-bars carousel-tabs" : "carousel-bars"}>
             {slides.map((_, i) => (
               <button
                 key={i}
                 type="button"
-                aria-label={`Show ${i + 1} of ${n}`}
+                aria-label={titles?.[i] ? undefined : `Show ${i + 1} of ${n}`}
                 aria-controls={id}
                 aria-current={i === at}
                 onClick={() => go(i)}
-              />
+              >
+                {titles?.[i] && <span>{titles[i]}</span>}
+              </button>
             ))}
           </div>
           <span className="carousel-count" aria-hidden="true">

@@ -28,6 +28,8 @@ const pixel = DotGothic16({
 });
 
 const THEME_INIT = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
+// The boot screen plays once per visit: later loads in the same tab skip it.
+const BOOT_INIT = `try{if(sessionStorage.getItem("booted"))document.documentElement.dataset.booted="";else sessionStorage.setItem("booted","1")}catch(e){}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://amorcillo.vercel.app"),
@@ -50,8 +52,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <head>
-        {/* Apply a saved theme before the first paint so the page never flashes. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+        {/* Apply a saved theme, and skip a boot screen already seen, before the
+            first paint so the page never flashes. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT + BOOT_INIT }} />
       </head>
       <body>
         {children}

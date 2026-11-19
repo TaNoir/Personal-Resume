@@ -1,17 +1,12 @@
 export const resume = {
   name: "Evander Harold S. Amorcillo",
   first: "Evander",
-  middle: "Harold S.",
   last: "Amorcillo",
   handle: "null.rot",
   title: "Software Developer",
   location: "Davao City, Philippines",
   timeZone: "Asia/Manila",
   status: "Open to work",
-  intro: [
-    "I'm Evander, a software developer from Davao City and a 4th-year IT student at the University of Mindanao.",
-    "I build web apps across the whole stack, from the interface down to the database. Lately that means C# and ASP.NET, with Rust on the side.",
-  ],
   stack: [
     {
       group: "languages",
@@ -19,17 +14,25 @@ export const resume = {
     },
     {
       group: "frontend",
-      items: ["HTML", "CSS", "React", "Next.js", "Tailwind CSS", "Bootstrap", "Canvas API", "PWA"],
+      items: ["HTML", "CSS", "React", "Next.js", "Svelte", "Tailwind CSS", "Bootstrap", "Canvas API", "PWA"],
     },
     {
       group: "backend",
-      items: ["Node.js", "Laravel", "ASP.NET", "Entity Framework Core", "SignalR", "Supabase", "REST API"],
+      items: [
+        "Node.js",
+        "Laravel",
+        "ASP.NET",
+        "Entity Framework Core",
+        "SignalR",
+        "Supabase",
+        "REST API",
+        "Google Gemini",
+      ],
     },
     {
       group: "database",
       items: ["MySQL", "PostgreSQL", "SQL Server", "SQLite", "Neon (Postgres)", "IndexedDB"],
     },
-    { group: "ai", items: ["Google Gemini"] },
     { group: "devops & cloud", items: ["Git", "GitHub", "Vercel", "Render"] },
     { group: "tools", items: ["VS Code", "Visual Studio", "xUnit"] },
   ],
@@ -63,7 +66,6 @@ export const resume = {
   education: {
     degree: "BS Information Technology",
     school: "University of Mindanao",
-    place: "Davao City",
     status: "4th year",
   },
   certificates: [
