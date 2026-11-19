@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /** Copies a value to the clipboard and confirms it in place. */
 export default function CopyButton({ value, label }: { value: string; label: string }) {
   const [state, setState] = useState<"idle" | "done" | "failed">("idle");
+  const reset = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(reset.current), []);
 
   const copy = async () => {
     try {
@@ -13,7 +15,9 @@ export default function CopyButton({ value, label }: { value: string; label: str
     } catch {
       setState("failed");
     }
-    setTimeout(() => setState("idle"), 1800);
+    // A second copy restarts the countdown instead of being cut short.
+    clearTimeout(reset.current);
+    reset.current = setTimeout(() => setState("idle"), 1800);
   };
 
   return (

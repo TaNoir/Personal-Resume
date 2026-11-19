@@ -167,6 +167,8 @@ export default function RotPlayer() {
   const [elapsed, setElapsed] = useState(0);
   const engine = useRef<Engine | null>(null);
   const bars = useRef<HTMLSpanElement>(null);
+  // The pending suspend after a fade-out, so pressing play again cancels it.
+  const hush = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const state = useRef({ step: 0, nextAt: 0, startedAt: 0, track: 0 });
   const unlocked = useSecrets().length > 0;
 
@@ -204,12 +206,13 @@ export default function RotPlayer() {
     tick();
     const sequencer = setInterval(tick, 25);
 
+    const meter = bars.current;
     const levels = new Uint8Array(e.analyser.frequencyBinCount);
     let raf = 0;
     const draw = () => {
       raf = requestAnimationFrame(draw);
       e.analyser.getByteFrequencyData(levels);
-      const kids = bars.current?.children;
+      const kids = meter?.children;
       if (kids) {
         for (let i = 0; i < kids.length; i++) {
           const v = levels[1 + i * 3] / 255;
@@ -224,21 +227,30 @@ export default function RotPlayer() {
       clearInterval(sequencer);
       clearInterval(time);
       cancelAnimationFrame(raf);
+      // Drop the bars back to rest instead of freezing them mid-bounce.
+      for (const bar of meter?.children ?? []) (bar as HTMLElement).style.transform = "";
     };
   }, [playing, track]);
 
   // Stop the sound if the page is torn down.
-  useEffect(() => () => void engine.current?.ctx.close(), []);
+  useEffect(
+    () => () => {
+      clearTimeout(hush.current);
+      void engine.current?.ctx.close();
+    },
+    [],
+  );
 
   const toggle = () => {
     if (!engine.current) engine.current = makeEngine();
     const e = engine.current;
+    clearTimeout(hush.current);
     const now = e.ctx.currentTime;
     e.out.gain.cancelScheduledValues(now);
     e.out.gain.setValueAtTime(e.out.gain.value, now);
     if (playing) {
       e.out.gain.linearRampToValueAtTime(0, now + 0.25);
-      setTimeout(() => void e.ctx.suspend(), 300);
+      hush.current = setTimeout(() => void e.ctx.suspend(), 300);
       setPlaying(false);
     } else {
       // Don't wait on resume(): some browsers settle it late, and the button

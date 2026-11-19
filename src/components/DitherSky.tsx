@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { fallbackSky, type SkyState } from "@/lib/sky";
+import { subscribeTheme } from "@/lib/theme";
 
 const W = 304;
 const H = 171;
@@ -187,6 +188,10 @@ export default function DitherSky({ sky }: { sky: SkyState | null }) {
 
     draw(0);
     redraw.current = () => draw(still ? 0 : performance.now());
+    // Repaint the moment the theme flips: the theme switch notifies inside
+    // its view transition, so the new snapshot has the new palette, and
+    // with reduced motion there is no running loop to pick it up later.
+    const unsubscribe = subscribeTheme(() => redraw.current?.());
     if (!still) {
       canvas.addEventListener("pointermove", move);
       canvas.addEventListener("pointerleave", leave);
@@ -194,6 +199,7 @@ export default function DitherSky({ sky }: { sky: SkyState | null }) {
     }
 
     return () => {
+      unsubscribe();
       redraw.current = null;
       cancelAnimationFrame(raf);
       io.disconnect();

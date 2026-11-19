@@ -15,13 +15,17 @@ const BITE_WINDOW_MS = 2000;
 const typing = (el: EventTarget | null) =>
   el instanceof HTMLElement && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 
+// One pending removal per class, so a restarted flash runs its full length.
+const flashing = new Map<string, ReturnType<typeof setTimeout>>();
+
 /** Adds a class for a while, restarting it if it is already there. */
 function flash(el: Element | null, name: string, ms: number) {
   if (!el) return;
+  clearTimeout(flashing.get(name));
   el.classList.remove(name);
   void (el as HTMLElement).offsetWidth;
   el.classList.add(name);
-  setTimeout(() => el.classList.remove(name), ms);
+  flashing.set(name, setTimeout(() => el.classList.remove(name), ms));
 }
 
 declare global {
