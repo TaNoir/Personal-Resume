@@ -85,21 +85,25 @@ export async function getLanguages(user: string): Promise<Language[] | null> {
   }
 }
 
-const ACTIVITY = new Set(["PushEvent", "CreateEvent", "PullRequestEvent"]);
-
-/** When the user last pushed code in public, as an ISO timestamp. */
+/**
+ * When the user last pushed code in public, as an ISO timestamp. Read from
+ * each repo's pushed_at, which GitHub updates as soon as a push lands. The
+ * public events feed was tried first, but it can lag by days and isn't
+ * returned in date order.
+ */
 export async function getLastPush(user: string): Promise<string | null> {
   "use cache";
   cacheLife("hours");
 
   try {
-    const res = await fetch(`https://api.github.com/users/${user}/events/public?per_page=30`, {
-      headers: HEADERS,
-    });
+    const res = await fetch(
+      `https://api.github.com/users/${user}/repos?type=owner&sort=pushed&per_page=5`,
+      { headers: HEADERS },
+    );
     if (!res.ok) return null;
-    const events: { type?: string; created_at?: string }[] = await res.json();
-    const hit = events.find((e) => e.type && ACTIVITY.has(e.type) && typeof e.created_at === "string");
-    return hit?.created_at ?? null;
+    const repos: { pushed_at?: string | null }[] = await res.json();
+    const times = repos.map((r) => r.pushed_at).filter((t): t is string => typeof t === "string");
+    return times.sort().at(-1) ?? null;
   } catch {
     return null;
   }
