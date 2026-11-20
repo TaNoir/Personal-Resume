@@ -44,7 +44,6 @@ secrets and terminal, game.
 - Narrow single column, cybergrunge look, three tones per theme. Must work in
   dark and light themes and at phone width.
 - All motion respects `prefers-reduced-motion`.
-- Commits carry no Claude attribution.
 
 ## Approaches
 

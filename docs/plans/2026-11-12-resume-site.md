@@ -1,14 +1,12 @@
 # Resume Site Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** A one-page cybergrunge resume site for Evander Amorcillo.
 
 **Architecture:** Next.js App Router, a single statically rendered route. All resume content lives in one typed data file; sections are server components; anything animated or interactive is a small client component. Effects are CSS and canvas, no animation library.
 
 **Tech Stack:** Next.js, React, TypeScript, Tailwind CSS, next/font.
 
-**Spec:** `docs/superpowers/specs/2026-11-12-resume-site-design.md`
+**Spec:** `docs/specs/2026-11-12-resume-site-design.md`
 
 ## Global Constraints
 - Body text contrast at least 4.5:1; effects never sit on top of paragraph text.

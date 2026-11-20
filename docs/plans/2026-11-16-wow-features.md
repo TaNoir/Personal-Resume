@@ -1,14 +1,12 @@
 # Wow Features Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Add a live Davao sky, six findable secrets with a terminal, and a 1-bit dog runner game to the portfolio site.
 
 **Architecture:** All logic that can be pure (moon phase, weather mapping, relative time, secret list, terminal commands, game engine) lives in `src/lib/*.ts` with vitest tests. Thin client components draw it. Features talk to each other through `window` custom events, because they sit in different parts of the tree (layout and page).
 
 **Tech Stack:** Next.js 16.4.6 App Router, React 19, TypeScript, plain CSS in `src/app/globals.css`, Canvas 2D, Web Audio, vitest (dev only).
 
-**Spec:** `docs/superpowers/specs/2026-11-16-wow-features-design.md`
+**Spec:** `docs/specs/2026-11-16-wow-features-design.md`
 
 The plan has three phases. Each phase ends with a push to `main`, which deploys to Vercel, so each ships alone.
 
@@ -16,7 +14,6 @@ The plan has three phases. Each phase ends with a push to `main`, which deploys 
 
 - No new runtime dependencies. The only new dev dependency is `vitest`.
 - Read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code (AGENTS.md).
-- Commits carry **no** `Co-Authored-By` or other Claude attribution. Plain sentence messages, like the existing history.
 - Every feature works in dark and light themes (`data-theme` on `<html>`) and at 375px width, inside the existing narrow column.
 - All motion respects `prefers-reduced-motion: reduce`.
 - Audio never starts by itself.
