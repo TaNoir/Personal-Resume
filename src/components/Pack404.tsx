@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { assignSlots, freeSpot, glyphSlots, keepOut, mergeBoxes, steer, type Box, type Point } from "@/lib/pack";
+import { assignSlots, detour, freeSpot, glyphSlots, keepOut, mergeBoxes, steer, type Box, type Point } from "@/lib/pack";
 import { subscribeTheme } from "@/lib/theme";
 
 // 9 by 6 one-bit sprites facing right: body rows, then legs. The first
@@ -153,7 +153,8 @@ export default function Pack404() {
       for (const a of pack) {
         const home = t > GATHER_AFTER_S && a.slot >= 0;
         if (!home && Math.hypot(a.roam.x - a.x, a.roam.y - a.y) < 4) a.roam = anywhere(boxes);
-        const target = home ? at[a.slot] : a.roam;
+        // Around the text, not across it, on the way to a spot.
+        const target = detour(a, home ? at[a.slot] : a.roam, boxes);
         const next = steer(a, target, home ? a.speed : a.speed * 0.45, dt, pointer);
         if (!home) {
           // Bumped into the text: stay at its edge and head somewhere else.

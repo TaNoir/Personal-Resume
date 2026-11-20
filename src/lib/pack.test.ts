@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FLEE_RADIUS, assignSlots, freeSpot, glyphSlots, keepOut, mergeBoxes, steer } from "./pack";
+import { FLEE_RADIUS, assignSlots, detour, freeSpot, glyphSlots, keepOut, mergeBoxes, steer } from "./pack";
 
 describe("404 formation", () => {
   it("spells 404 in a 3 by 5 pixel font, 30 spots in all", () => {
@@ -58,6 +58,36 @@ describe("keeping strays off the text", () => {
     const out = keepOut({ x: 50, y: 45 }, mergeBoxes([heading, copy]));
     expect(out.pushed).toBe(true);
     expect([heading, copy].some((b) => out.x > b.left && out.x < b.right && out.y > b.top && out.y < b.bottom)).toBe(false);
+  });
+  it("walks straight to its spot when no text is in the way", () => {
+    expect(detour({ x: 150, y: 100 }, { x: 150, y: -50 }, [text])).toEqual({ x: 150, y: -50 });
+  });
+  it("heads for a corner first when the text is in the way", () => {
+    // Below the middle of the text, its spot above it: go to a bottom corner.
+    const via = detour({ x: 40, y: 60 }, { x: 60, y: -30 }, [text]);
+    expect(via.y).toBeGreaterThan(text.bottom);
+    expect(via.x < text.left || via.x > text.right).toBe(true);
+  });
+  it("goes up the side once it has reached a bottom corner", () => {
+    const via = detour({ x: -2, y: 42 }, { x: 60, y: -30 }, [text]);
+    expect(via.x).toBeLessThan(text.left);
+    expect(via.y).toBeLessThan(text.top);
+  });
+  it("keeps going up the side instead of turning back to the corner it just left", () => {
+    // One step above the bottom corner, the bottom corner is nearer the
+    // spot as the crow flies, but walking back there leads nowhere.
+    const via = detour({ x: -2, y: 38 }, { x: 80, y: -10 }, [text]);
+    expect(via.y).toBeLessThan(text.top);
+  });
+  it("goes around the nearest block first when several are in the way", () => {
+    const button = { left: 0, top: 200, right: 80, bottom: 240 };
+    // Below the button, its spot above the heading: round the button first.
+    const via = detour({ x: 40, y: 300 }, { x: 60, y: -30 }, [text, button]);
+    expect(via.y).toBeGreaterThan(button.bottom);
+    expect(via.x < button.left || via.x > button.right).toBe(true);
+  });
+  it("doesn't detour for a spot inside the text", () => {
+    expect(detour({ x: 50, y: 90 }, { x: 50, y: 20 }, [text])).toEqual({ x: 50, y: 20 });
   });
   it("picks wandering spots away from the text", () => {
     const tries = [
