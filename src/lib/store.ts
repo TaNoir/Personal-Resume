@@ -37,10 +37,13 @@ export async function wipeWall(db: Redis): Promise<void> {
   await db.set(WALL, BLANK);
 }
 
+// Counting and starting the one-minute timer go in one transaction, and the
+// timer is set whenever it is missing, so a count can never be left without
+// one. A counter with no timer would never reset; on the shared counter that
+// would close the wall to everyone.
 const count = async (db: Redis, key: string) => {
-  const n = await db.incr(key);
-  if (n === 1) await db.expire(key, 60);
-  return n;
+  const [n] = await db.multi().incr(key).expire(key, 60, "NX").exec<[number, number]>();
+  return Number(n);
 };
 
 /**
