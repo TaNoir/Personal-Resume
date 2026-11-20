@@ -18,7 +18,7 @@ export type Result = { lines: string[]; effects: Effect[] };
 export const MAX_INPUT = 200;
 
 const HELP = [
-  "commands:",
+  "commands (tab completes):",
   "  whoami              who runs this place",
   "  stack               what I build with",
   "  project             my projects",
@@ -31,6 +31,39 @@ const HELP = [
   "  clear               wipe the screen",
   "  exit                close the terminal",
 ];
+
+/** What Tab can finish: the commands in help and their arguments. */
+const COMMANDS = [
+  "help", "whoami", "stack", "project", "contact", "weather",
+  "theme", "radio", "play", "secrets", "clear", "exit",
+].sort();
+const ARGS: Record<string, string[]> = {
+  theme: ["dark", "light"],
+  radio: ["next", "pause", "play"],
+};
+
+/**
+ * Tab completion. Finishes the word under the cursor as far as every match
+ * agrees, adding a space once it is whole, and returns the matches so the
+ * terminal can list them when there is more than one. Only completes the
+ * command and the argument of theme or radio; the hidden ones stay hidden.
+ */
+export function complete(input: string): { value: string; matches: string[] } {
+  const parts = input.slice(0, MAX_INPUT).trimStart().split(" ");
+  const pool =
+    parts.length === 1 ? COMMANDS : parts.length === 2 ? ARGS[parts[0].toLowerCase()] : undefined;
+  const word = parts[parts.length - 1].toLowerCase();
+  if (!pool || (parts.length === 1 && !word)) return { value: input, matches: [] };
+
+  const matches = pool.filter((c) => c.startsWith(word));
+  if (!matches.length) return { value: input, matches };
+
+  let shared = matches[0];
+  for (const m of matches) while (!m.startsWith(shared)) shared = shared.slice(0, -1);
+  const head = parts.slice(0, -1).join(" ");
+  const done = matches.length === 1 ? `${shared} ` : shared;
+  return { value: head ? `${head} ${done}` : done, matches };
+}
 
 const say = (...lines: string[]): Result => ({ lines, effects: [] });
 const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { run } from "./terminal";
+import { complete, run } from "./terminal";
 
 const ctx = { found: 2, sky: "davao / 25.8°C / overcast" };
 
@@ -46,6 +46,30 @@ describe("terminal", () => {
     expect(run("play", ctx).effects).toEqual([{ type: "play" }, { type: "close" }]);
     expect(run("clear", ctx).effects).toEqual([{ type: "clear" }]);
     expect(run("exit", ctx).effects).toEqual([{ type: "close" }]);
+  });
+  it("completes a command name and adds a space", () => {
+    expect(complete("who")).toEqual({ value: "whoami ", matches: ["whoami"] });
+    expect(complete("WEA")).toEqual({ value: "weather ", matches: ["weather"] });
+  });
+  it("extends to the shared prefix and lists the choices", () => {
+    expect(complete("p")).toEqual({ value: "p", matches: ["play", "project"] });
+    expect(complete("pro")).toEqual({ value: "project ", matches: ["project"] });
+    expect(complete("se")).toEqual({ value: "secrets ", matches: ["secrets"] });
+    expect(complete("c")).toEqual({ value: "c", matches: ["clear", "contact"] });
+    expect(complete("cl")).toEqual({ value: "clear ", matches: ["clear"] });
+  });
+  it("completes theme and radio arguments", () => {
+    expect(complete("theme l")).toEqual({ value: "theme light ", matches: ["light"] });
+    expect(complete("radio p")).toEqual({ value: "radio p", matches: ["pause", "play"] });
+    expect(complete("radio pa")).toEqual({ value: "radio pause ", matches: ["pause"] });
+    expect(complete("radio ")).toEqual({ value: "radio ", matches: ["next", "pause", "play"] });
+  });
+  it("keeps the hidden commands hidden and leaves the rest alone", () => {
+    expect(complete("b")).toEqual({ value: "b", matches: [] });
+    expect(complete("su")).toEqual({ value: "su", matches: [] });
+    expect(complete("xyz")).toEqual({ value: "xyz", matches: [] });
+    expect(complete("stack foo")).toEqual({ value: "stack foo", matches: [] });
+    expect(complete("")).toEqual({ value: "", matches: [] });
   });
   it("survives odd input", () => {
     expect(run("", ctx)).toEqual({ lines: [], effects: [] });

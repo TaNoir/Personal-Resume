@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { findSecret, useSecrets } from "@/lib/secrets";
-import { MAX_INPUT, run, type Effect } from "@/lib/terminal";
+import { complete, MAX_INPUT, run, type Effect } from "@/lib/terminal";
 import { setTheme } from "@/lib/theme";
 
 const MAX_LINES = 200;
@@ -155,6 +155,14 @@ export default function Terminal() {
     if (e.key === "Enter") {
       e.preventDefault();
       submit();
+    } else if (e.key === "Tab" && !e.shiftKey && el.value.trim()) {
+      // Tab completes; on an empty prompt it still moves focus as usual.
+      e.preventDefault();
+      if (el.selectionStart !== el.value.length) return;
+      const { value, matches } = complete(el.value);
+      // When nothing more can be filled in, list the choices like a shell.
+      if (value === el.value && matches.length > 1) print([`> ${el.value}`, matches.join("  ")]);
+      el.value = value;
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault();
       const h = history.current;
