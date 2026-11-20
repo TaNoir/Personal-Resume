@@ -86,6 +86,19 @@ export function withPending(cells: string, pending: Map<number, boolean>): strin
 }
 
 /**
+ * The owner's token from an address like /wipe#token. The part after # never
+ * leaves the browser, so the token stays out of server logs.
+ */
+export function tokenFromHash(hash: string): string {
+  const raw = hash.replace(/^#/, "").trim();
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+/**
  * What the owner sees after pressing "clear the wall", from the server's
  * status (null when the request never arrived). `forget` drops a saved
  * token that turned out wrong.

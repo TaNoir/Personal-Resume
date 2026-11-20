@@ -10,6 +10,7 @@ import {
   parseFlip,
   rateBucket,
   setCell,
+  tokenFromHash,
   wipeResult,
   withPending,
 } from "./wall";
@@ -107,5 +108,20 @@ describe("wipe result", () => {
     expect(wipeResult(503)).toEqual({ text: "The wall is offline right now.", forget: false });
     expect(wipeResult(null)).toEqual({ text: "Couldn't reach the site. Check your connection.", forget: false });
     expect(wipeResult(500).text).toBe("Something went wrong (500).");
+  });
+});
+
+describe("token from the address", () => {
+  it("reads whatever follows the #", () => {
+    expect(tokenFromHash("#abc123")).toBe("abc123");
+    expect(tokenFromHash("#  abc123  ")).toBe("abc123");
+  });
+  it("is empty when there is none", () => {
+    expect(tokenFromHash("")).toBe("");
+    expect(tokenFromHash("#")).toBe("");
+  });
+  it("decodes an escaped token and survives a broken one", () => {
+    expect(tokenFromHash("#a%2Bb")).toBe("a+b");
+    expect(tokenFromHash("#%E0%A4%A")).toBe("%E0%A4%A");
   });
 });

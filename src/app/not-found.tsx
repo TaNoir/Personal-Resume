@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Pack404 from "@/components/Pack404";
+import WipeGate from "@/components/WipeGate";
 
 export const metadata: Metadata = {
   title: "404 — sector not found",
@@ -7,34 +9,29 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="page lost">
-      <div className="lost-dog" aria-hidden="true">
-        <div className="dog">
-          {/* eslint-disable @next/next/no-img-element */}
-          <img className="dog-head" src="/dog.png" alt="" width={360} height={360} />
-          <img className="dog-jaw" src="/dog.png" alt="" width={360} height={360} />
-          {/* eslint-enable @next/next/no-img-element */}
-        </div>
-      </div>
+    <WipeGate>
+      <div className="page lost">
+        <Pack404 />
+        {/* The pack lines up to spell 404 over this space. */}
+        <div className="pack-anchor" data-pack-anchor aria-hidden="true" />
+        <h1>
+          <span className="sr-only">404: </span>Sector not found
+        </h1>
+        <p className="lost-copy">
+          Whatever was here has rotted away, or it never existed. The pack is guarding what&apos;s left.
+        </p>
 
-      <p className="lost-code" aria-hidden="true">
-        404
-      </p>
-      <h1>Sector not found</h1>
-      <p className="lost-copy">
-        Whatever was here has rotted away, or it never existed. The dog is guarding what&apos;s left.
-      </p>
-
-      <pre className="lost-log" aria-hidden="true">
-        {`$ cd /requested/page
+        <pre className="lost-log" aria-hidden="true">
+          {`$ cd /requested/page
   error: no such sector
   bad blocks ......... 1
-  guard dog .......... awake`}
-      </pre>
+  pack ............... awake`}
+        </pre>
 
-      <Link className="btn btn-solid" href="/">
-        Back to the homepage
-      </Link>
-    </div>
+        <Link className="btn btn-solid" href="/">
+          Back to the homepage
+        </Link>
+      </div>
+    </WipeGate>
   );
 }

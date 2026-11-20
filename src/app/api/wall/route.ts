@@ -1,5 +1,6 @@
 import { ipAddress } from "@vercel/functions";
 import { connection } from "next/server";
+import { isOwner } from "@/lib/owner";
 import { allowFlip, flipCell, readWall, redis, wipeWall } from "@/lib/store";
 import { parseFlip } from "@/lib/wall";
 
@@ -35,8 +36,7 @@ export async function POST(request: Request) {
 
 /** Wipes the wall. Only with the owner's token, which lives in Vercel. */
 export async function DELETE(request: Request) {
-  const token = process.env.WALL_ADMIN_TOKEN;
-  if (!token || request.headers.get("x-wall-token") !== token) return json({ error: "unauthorized" }, 401);
+  if (!isOwner(request)) return json({ error: "unauthorized" }, 401);
   const db = redis();
   if (!db) return offline();
   try {
