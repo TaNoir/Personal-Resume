@@ -1164,8 +1164,10 @@ a.row:hover .arrow {
   font: 400 0.8125rem/1.2 var(--font-pixel), monospace;
 }
 
+/* Long addresses break at the <wbr> before the @ first, and only split
+   mid-word if a part still doesn't fit. */
 .reach a {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   transition: color 0.2s;
 }
 
@@ -1405,6 +1407,11 @@ footer {
     width: 100%;
   }
 
+  /* A narrower gap lets the school address fit on one line on most phones. */
+  .row {
+    column-gap: 0.75rem;
+  }
+
   .sticker:nth-child(3) {
     left: auto !important;
     right: 0;
@@ -1582,9 +1589,10 @@ footer {
   }
 }
 
-/* Where the side margins are too narrow to hold it, shrink the player to
-   its controls so it covers as little of the page as possible. */
-@media (max-width: 1260px) {
+/* The full player needs about 3rem of clear margin beside the column.
+   Where the side margins are narrower, shrink it to its controls so it
+   covers as little of the page as possible. */
+@media (max-width: 1340px) {
   .player {
     width: auto;
   }

@@ -280,7 +280,10 @@ export default async function Home() {
                 <div className="row">
                   <span className="reach">
                     <span className="reach-label">{e.label}</span>
-                    <a href={`mailto:${e.address}`}>{e.address}</a>
+                    <a href={`mailto:${e.address}`}>
+                      {e.address.split("@")[0]}
+                      <wbr />@{e.address.split("@")[1]}
+                    </a>
                   </span>
                   <CopyButton value={e.address} label={`${e.label} email`} />
                 </div>
