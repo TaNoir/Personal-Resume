@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { assignSlots, glyphSlots, steer, type Point } from "@/lib/pack";
+import { assignSlots, freeSpot, glyphSlots, keepOut, mergeBoxes, steer, type Box, type Point } from "@/lib/pack";
 import { subscribeTheme } from "@/lib/theme";
 
 // 9 by 6 one-bit sprites facing right: body rows, then legs. The first
@@ -82,7 +82,22 @@ export default function Pack404() {
       return slots.map((s) => ({ x: cx + (s.col - 5) * cw, y: cy + (s.row - 2) * ch }));
     };
 
-    const anywhere = (): Point => ({ x: 20 + Math.random() * (vw - 40), y: 20 + Math.random() * (vh - 40) });
+    // The page's words and button, padded by half a sprite, so strays walk
+    // around them instead of across them.
+    const textBoxes = (): Box[] => {
+      const padX = (W * px) / 2 + 4;
+      const padY = (H * px) / 2 + 4;
+      const els = [...document.querySelectorAll(".lost > :not(.pack):not([data-pack-anchor])")];
+      return mergeBoxes(
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { left: r.left - padX, top: r.top - padY, right: r.right + padX, bottom: r.bottom + padY };
+        }),
+      );
+    };
+
+    const anywhere = (boxes = textBoxes()): Point =>
+      freeSpot(() => ({ x: 20 + Math.random() * (vw - 40), y: 20 + Math.random() * (vh - 40) }), boxes);
 
     const pack: Animal[] = Array.from({ length: slots.length + EXTRAS }, (_, i) => ({
       ...anywhere(),
@@ -134,11 +149,19 @@ export default function Pack404() {
       last = now;
       const t = (now - start) / 1000;
       const at = spots();
+      const boxes = textBoxes();
       for (const a of pack) {
         const home = t > GATHER_AFTER_S && a.slot >= 0;
-        if (!home && Math.hypot(a.roam.x - a.x, a.roam.y - a.y) < 4) a.roam = anywhere();
+        if (!home && Math.hypot(a.roam.x - a.x, a.roam.y - a.y) < 4) a.roam = anywhere(boxes);
         const target = home ? at[a.slot] : a.roam;
         const next = steer(a, target, home ? a.speed : a.speed * 0.45, dt, pointer);
+        if (!home) {
+          // Bumped into the text: stay at its edge and head somewhere else.
+          const out = keepOut(next, boxes);
+          if (out.pushed) a.roam = anywhere(boxes);
+          next.x = out.x;
+          next.y = out.y;
+        }
         if (Math.abs(next.x - a.x) > 0.05) a.facing = next.x > a.x ? 1 : -1;
         a.moving = next.moved;
         a.x = next.x;

@@ -40,6 +40,53 @@ export function assignSlots(animals: Point[], spots: Point[]): number[] {
   return pick;
 }
 
+/** A screen rectangle the strays stay out of, such as a block of text. */
+export type Box = { left: number; top: number; right: number; bottom: number };
+
+const within = (p: Point, b: Box) => p.x > b.left && p.x < b.right && p.y > b.top && p.y < b.bottom;
+
+const overlap = (a: Box, b: Box) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+
+/** Joins boxes that overlap into one box around both, until none overlap. */
+export function mergeBoxes(boxes: Box[]): Box[] {
+  const out = boxes.map((b) => ({ ...b }));
+  for (let i = 0; i < out.length; i++) {
+    for (let j = i + 1; j < out.length; j++) {
+      if (!overlap(out[i], out[j])) continue;
+      const [b] = out.splice(j, 1);
+      out[i] = {
+        left: Math.min(out[i].left, b.left),
+        top: Math.min(out[i].top, b.top),
+        right: Math.max(out[i].right, b.right),
+        bottom: Math.max(out[i].bottom, b.bottom),
+      };
+      j = i; // the grown box may now reach ones already checked
+    }
+  }
+  return out;
+}
+
+/** Moves a point that is inside any box out to that box's nearest edge. */
+export function keepOut(p: Point, boxes: Box[]): Point & { pushed: boolean } {
+  const box = boxes.find((b) => within(p, b));
+  if (!box) return { x: p.x, y: p.y, pushed: false };
+  const edges = [
+    { d: p.x - box.left, x: box.left, y: p.y },
+    { d: box.right - p.x, x: box.right, y: p.y },
+    { d: p.y - box.top, x: p.x, y: box.top },
+    { d: box.bottom - p.y, x: p.x, y: box.bottom },
+  ];
+  const near = edges.reduce((a, b) => (b.d < a.d ? b : a));
+  return { x: near.x, y: near.y, pushed: true };
+}
+
+/** A random spot outside every box, or the last one tried if none is free. */
+export function freeSpot(random: () => Point, boxes: Box[], tries = 20): Point {
+  let p = random();
+  for (let i = 1; i < tries && boxes.some((b) => within(p, b)); i++) p = random();
+  return p;
+}
+
 /** How close the pointer can get before an animal bolts. */
 export const FLEE_RADIUS = 60;
 const EDGE_BAND = 10;
