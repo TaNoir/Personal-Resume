@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BLANK, CELLS, COLS, ROWS, parseCells, parseFlip, parseVisit, setCell, visitLine } from "./wall";
+import { BLANK, CELLS, COLS, ROWS, cellAt, cellsBetween, parseCells, parseFlip, parseVisit, setCell, visitLine } from "./wall";
 
 describe("wall cells", () => {
   it("is a 32 by 8 grid of 256 cells", () => {
@@ -22,6 +22,34 @@ describe("wall cells", () => {
     expect(on[3]).toBe("1");
     expect(on).toHaveLength(256);
     expect(setCell(on, 3, false)).toBe(BLANK);
+  });
+});
+
+describe("pointer to cell", () => {
+  it("maps a position across the wall to a cell, row by row", () => {
+    expect(cellAt(0, 0)).toBe(0);
+    expect(cellAt(0.999, 0)).toBe(31);
+    expect(cellAt(0, 0.13)).toBe(32);
+    expect(cellAt(0.999, 0.999)).toBe(255);
+  });
+  it("is null outside the wall", () => {
+    expect(cellAt(-0.01, 0.5)).toBeNull();
+    expect(cellAt(0.5, 1)).toBeNull();
+    expect(cellAt(Number.NaN, 0.5)).toBeNull();
+  });
+});
+
+describe("drag line", () => {
+  it("fills every cell between two cells, ending on the second", () => {
+    expect(cellsBetween(2, 6)).toEqual([3, 4, 5, 6]);
+    expect(cellsBetween(4, 4 + COLS * 3)).toEqual([4 + COLS, 4 + COLS * 2, 4 + COLS * 3]);
+    expect(cellsBetween(10, 7)).toEqual([9, 8, 7]);
+  });
+  it("steps diagonally without gaps", () => {
+    expect(cellsBetween(0, COLS * 2 + 2)).toEqual([COLS + 1, COLS * 2 + 2]);
+  });
+  it("is empty for the same cell", () => {
+    expect(cellsBetween(5, 5)).toEqual([]);
   });
 });
 
