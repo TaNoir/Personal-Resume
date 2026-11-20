@@ -1,5 +1,3 @@
-import { ago } from "@/lib/ago";
-
 /** The shared wall is 32 by 8 one-bit pixels, row by row. */
 export const COLS = 32;
 export const ROWS = 8;
@@ -87,24 +85,6 @@ export function withPending(cells: string, pending: Map<number, boolean>): strin
   return out;
 }
 
-const VISIT_TTL_MS = 30 * 60_000;
-
-/**
- * The last-visit answer saved by an earlier tab in the past half hour, so
- * opening another tab doesn't record this visitor again and show them
- * their own visit. Null when there is none.
- */
-export function cachedVisit(raw: string | null, now: number): { last: unknown } | null {
-  if (!raw) return null;
-  try {
-    const saved = JSON.parse(raw) as { last?: unknown; at?: unknown };
-    if (typeof saved.at !== "number" || now - saved.at > VISIT_TTL_MS || !("last" in saved)) return null;
-    return { last: saved.last };
-  } catch {
-    return null;
-  }
-}
-
 /**
  * What the owner sees after pressing "clear the wall", from the server's
  * status (null when the request never arrived). `forget` drops a saved
@@ -116,19 +96,4 @@ export function wipeResult(status: number | null): { text: string; forget: boole
   if (status === 503) return { text: "The wall is offline right now.", forget: false };
   if (status === null) return { text: "Couldn't reach the site. Check your connection.", forget: false };
   return { text: `Something went wrong (${status}).`, forget: false };
-}
-
-/** Where the last visitor came from. Nothing that identifies them. */
-export type Visit = { city: string; country: string; at: string };
-
-export function parseVisit(raw: unknown): Visit | null {
-  if (!raw || typeof raw !== "object") return null;
-  const { city, country, at } = raw as Record<string, unknown>;
-  if (typeof city !== "string" || typeof country !== "string" || typeof at !== "string") return null;
-  if (!city.trim() || !country.trim() || Number.isNaN(Date.parse(at))) return null;
-  return { city: city.trim().slice(0, 40), country: country.trim().slice(0, 2).toUpperCase(), at };
-}
-
-export function visitLine(v: Visit, now: Date): string {
-  return `last visit from ${v.city}, ${v.country} · ${ago(v.at, now)}`;
 }

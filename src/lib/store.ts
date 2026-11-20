@@ -1,8 +1,7 @@
 import { Redis } from "@upstash/redis";
-import { BLANK, CELLS, parseCells, parseVisit, rateBucket, type Visit } from "@/lib/wall";
+import { BLANK, CELLS, parseCells, rateBucket } from "@/lib/wall";
 
 const WALL = "wall";
-const VISIT = "visit";
 const FLIPS_PER_MINUTE = 60;
 const FLIPS_PER_MINUTE_ALL = 600;
 
@@ -54,21 +53,4 @@ export async function allowFlip(db: Redis, ip: string): Promise<boolean> {
   const id = [...new Uint8Array(digest).slice(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join("");
   if ((await count(db, `rl:${id}`)) > FLIPS_PER_MINUTE) return false;
   return (await count(db, "rl:all")) <= FLIPS_PER_MINUTE_ALL;
-}
-
-export async function lastVisit(db: Redis): Promise<Visit | null> {
-  const raw = await db.get<string>(VISIT);
-  if (!raw) return null;
-  try {
-    return parseVisit(JSON.parse(raw));
-  } catch {
-    return null;
-  }
-}
-
-/** Records this visit and returns the one before it. */
-export async function swapVisit(db: Redis, visit: Visit): Promise<Visit | null> {
-  const before = await lastVisit(db);
-  await db.set(VISIT, JSON.stringify(visit));
-  return before;
 }

@@ -2,52 +2,11 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { subscribeTheme } from "@/lib/theme";
-import {
-  BLANK,
-  CELLS,
-  COLS,
-  ROWS,
-  cachedVisit,
-  cellAt,
-  cellsBetween,
-  parseCells,
-  parseVisit,
-  setCell,
-  visitLine,
-  withPending,
-} from "@/lib/wall";
+import { BLANK, CELLS, COLS, ROWS, cellAt, cellsBetween, parseCells, setCell, withPending } from "@/lib/wall";
 
 const POLL_MS = 20_000;
-const VISIT_KEY = "last-visit";
 
 const tone = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-
-// One request per page load, even if the effect runs twice: a second
-// request would record this visitor and then report them as the last one.
-let visitOnce: Promise<string | null> | null = null;
-const lastVisitLine = () => (visitOnce ??= fetchLastVisit());
-
-/**
- * Where the visitor before this one came from. Asked at most once every half
- * hour across all tabs, so a second tab doesn't show you your own visit.
- */
-async function fetchLastVisit(): Promise<string | null> {
-  let stored: string | null = null;
-  try {
-    stored = localStorage.getItem(VISIT_KEY);
-  } catch {}
-  let raw = cachedVisit(stored, Date.now())?.last ?? null;
-  if (!cachedVisit(stored, Date.now())) {
-    const res = await fetch("/api/visit", { method: "POST" }).catch(() => null);
-    if (!res?.ok) return null;
-    raw = ((await res.json().catch(() => null)) as { last?: unknown } | null)?.last ?? null;
-    try {
-      localStorage.setItem(VISIT_KEY, JSON.stringify({ last: raw, at: Date.now() }));
-    } catch {}
-  }
-  const visit = parseVisit(raw);
-  return visit && visitLine(visit, new Date());
-}
 
 /**
  * A 32 by 8 wall of one-bit pixels that every visitor shares. Click, tap or
@@ -65,7 +24,6 @@ export default function PixelWall() {
   const pending = useRef(new Map<number, boolean>());
   const redraw = useRef<() => void>(() => {});
   const [offline, setOffline] = useState(false);
-  const [visit, setVisit] = useState<string | null>(null);
 
   // Draws the cells at the canvas's real size, so the pixels stay sharp.
   useEffect(() => {
@@ -147,7 +105,6 @@ export default function PixelWall() {
       timer = setInterval(load, POLL_MS);
     });
     io.observe(el);
-    void lastVisitLine().then((line) => !gone && setVisit(line));
     return () => {
       gone = true;
       io.disconnect();
@@ -254,7 +211,6 @@ export default function PixelWall() {
       />
       <p className="wall-note">
         <span>{offline ? "wall offline." : "flip a pixel. everyone sees it."}</span>
-        {!offline && visit && <span>{visit}</span>}
       </p>
     </div>
   );

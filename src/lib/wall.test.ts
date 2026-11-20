@@ -4,15 +4,12 @@ import {
   CELLS,
   COLS,
   ROWS,
-  cachedVisit,
   cellAt,
   cellsBetween,
   parseCells,
   parseFlip,
-  parseVisit,
   rateBucket,
   setCell,
-  visitLine,
   wipeResult,
   withPending,
 } from "./wall";
@@ -92,30 +89,6 @@ describe("flips still in flight", () => {
   });
 });
 
-describe("cached last visit", () => {
-  const now = Date.parse("2026-11-20T10:00:00Z");
-  const stored = (at: number) => JSON.stringify({ last: { city: "Osaka" }, at });
-  it("is reused for half an hour, so a new tab doesn't count you again", () => {
-    expect(cachedVisit(stored(now - 29 * 60_000), now)).toEqual({ last: { city: "Osaka" } });
-  });
-  it("is ignored once stale, missing or broken", () => {
-    expect(cachedVisit(stored(now - 31 * 60_000), now)).toBeNull();
-    expect(cachedVisit(null, now)).toBeNull();
-    expect(cachedVisit("{oops", now)).toBeNull();
-    expect(cachedVisit(JSON.stringify({ at: now }), now)).toBeNull();
-  });
-});
-
-describe("wipe result", () => {
-  it("says what happened in plain words", () => {
-    expect(wipeResult(204)).toEqual({ text: "Wall cleared.", forget: false });
-    expect(wipeResult(401)).toEqual({ text: "That token doesn't match the one in Vercel.", forget: true });
-    expect(wipeResult(503)).toEqual({ text: "The wall is offline right now.", forget: false });
-    expect(wipeResult(null)).toEqual({ text: "Couldn't reach the site. Check your connection.", forget: false });
-    expect(wipeResult(500).text).toBe("Something went wrong (500).");
-  });
-});
-
 describe("flip requests", () => {
   it("accepts a whole cell index and a boolean", () => {
     expect(parseFlip({ i: 0, on: true })).toEqual({ i: 0, on: true });
@@ -127,23 +100,12 @@ describe("flip requests", () => {
   });
 });
 
-describe("last visitor", () => {
-  const osaka = { city: "Osaka", country: "JP", at: "2026-11-20T10:00:00Z" };
-  it("reads a stored visit", () => {
-    expect(parseVisit(osaka)).toEqual(osaka);
-  });
-  it("rejects a visit without a city, country or real date", () => {
-    expect(parseVisit({ ...osaka, city: "" })).toBeNull();
-    expect(parseVisit({ ...osaka, country: undefined })).toBeNull();
-    expect(parseVisit({ ...osaka, at: "soon" })).toBeNull();
-    expect(parseVisit("Osaka")).toBeNull();
-  });
-  it("keeps stored names short", () => {
-    const v = parseVisit({ ...osaka, city: "x".repeat(80), country: "JPN" });
-    expect(v?.city).toHaveLength(40);
-    expect(v?.country).toBe("JP");
-  });
-  it("words the line under the wall", () => {
-    expect(visitLine(osaka, new Date("2026-11-20T10:03:00Z"))).toBe("last visit from Osaka, JP · 3m ago");
+describe("wipe result", () => {
+  it("says what happened in plain words", () => {
+    expect(wipeResult(204)).toEqual({ text: "Wall cleared.", forget: false });
+    expect(wipeResult(401)).toEqual({ text: "That token doesn't match the one in Vercel.", forget: true });
+    expect(wipeResult(503)).toEqual({ text: "The wall is offline right now.", forget: false });
+    expect(wipeResult(null)).toEqual({ text: "Couldn't reach the site. Check your connection.", forget: false });
+    expect(wipeResult(500).text).toBe("Something went wrong (500).");
   });
 });
