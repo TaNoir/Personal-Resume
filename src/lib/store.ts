@@ -52,14 +52,9 @@ const count = async (db: Redis, key: string) => {
 export async function allowFlip(db: Redis, ip: string): Promise<boolean> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(rateBucket(ip)));
   const id = [...new Uint8Array(digest).slice(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join("");
-  const mine = await count(db, `rl:${id}`);
-  debugLast = `${id.slice(0, 4)}:${JSON.stringify(mine)}:${typeof mine}`;
-  if (mine > FLIPS_PER_MINUTE) return false;
+  if ((await count(db, `rl:${id}`)) > FLIPS_PER_MINUTE) return false;
   return (await count(db, "rl:all")) <= FLIPS_PER_MINUTE_ALL;
 }
-
-// TEMPORARY: rate-limit diagnosis on the live site. Remove after.
-export let debugLast = "";
 
 export async function lastVisit(db: Redis): Promise<Visit | null> {
   const raw = await db.get<string>(VISIT);

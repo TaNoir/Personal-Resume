@@ -1,6 +1,6 @@
 import { ipAddress } from "@vercel/functions";
 import { connection } from "next/server";
-import { allowFlip, debugLast, flipCell, readWall, redis, wipeWall } from "@/lib/store";
+import { allowFlip, flipCell, readWall, redis, wipeWall } from "@/lib/store";
 import { parseFlip } from "@/lib/wall";
 
 const NO_STORE = { "Cache-Control": "no-store" };
@@ -26,10 +26,8 @@ export async function POST(request: Request) {
   const db = redis();
   if (!db) return offline();
   try {
-    const allowed = await allowFlip(db, ipAddress(request) ?? "unknown");
-    const dbg = `${debugLast}|ip:${ipAddress(request) ? "set" : "missing"}`;
-    if (!allowed) return Response.json({ error: "slow down" }, { status: 429, headers: { ...NO_STORE, "x-wall-debug": dbg } });
-    return Response.json({ cells: await flipCell(db, flip.i, flip.on) }, { headers: { ...NO_STORE, "x-wall-debug": dbg } });
+    if (!(await allowFlip(db, ipAddress(request) ?? "unknown"))) return json({ error: "slow down" }, 429);
+    return json({ cells: await flipCell(db, flip.i, flip.on) });
   } catch {
     return offline();
   }
