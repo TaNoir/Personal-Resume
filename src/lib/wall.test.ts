@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { BLANK, CELLS, COLS, ROWS, cellAt, cellsBetween, parseCells, parseFlip, parseVisit, setCell, visitLine } from "./wall";
+import {
+  BLANK,
+  CELLS,
+  COLS,
+  ROWS,
+  cachedVisit,
+  cellAt,
+  cellsBetween,
+  parseCells,
+  parseFlip,
+  parseVisit,
+  rateBucket,
+  setCell,
+  visitLine,
+  withPending,
+} from "./wall";
 
 describe("wall cells", () => {
   it("is a 32 by 8 grid of 256 cells", () => {
@@ -50,6 +65,43 @@ describe("drag line", () => {
   });
   it("is empty for the same cell", () => {
     expect(cellsBetween(5, 5)).toEqual([]);
+  });
+});
+
+describe("rate-limit bucket", () => {
+  it("keeps an IPv4 address as it is", () => {
+    expect(rateBucket("203.0.113.7")).toBe("203.0.113.7");
+    expect(rateBucket("::ffff:203.0.113.7")).toBe("203.0.113.7");
+  });
+  it("groups an IPv6 address by its /64, however it is written", () => {
+    expect(rateBucket("2001:db8:1:2:aaaa::1")).toBe("2001:db8:1:2");
+    expect(rateBucket("2001:0db8:0001:0002:ffff:1:2:3")).toBe("2001:db8:1:2");
+    expect(rateBucket("2001:db8::5")).toBe("2001:db8:0:0");
+  });
+});
+
+describe("flips still in flight", () => {
+  it("are laid over a fresh copy of the wall so they don't blink out", () => {
+    const pending = new Map([[3, true], [5, false]]);
+    const server = setCell(BLANK, 5, true);
+    const merged = withPending(server, pending);
+    expect(merged[3]).toBe("1");
+    expect(merged[5]).toBe("0");
+    expect(withPending(server, new Map())).toBe(server);
+  });
+});
+
+describe("cached last visit", () => {
+  const now = Date.parse("2026-11-20T10:00:00Z");
+  const stored = (at: number) => JSON.stringify({ last: { city: "Osaka" }, at });
+  it("is reused for half an hour, so a new tab doesn't count you again", () => {
+    expect(cachedVisit(stored(now - 29 * 60_000), now)).toEqual({ last: { city: "Osaka" } });
+  });
+  it("is ignored once stale, missing or broken", () => {
+    expect(cachedVisit(stored(now - 31 * 60_000), now)).toBeNull();
+    expect(cachedVisit(null, now)).toBeNull();
+    expect(cachedVisit("{oops", now)).toBeNull();
+    expect(cachedVisit(JSON.stringify({ at: now }), now)).toBeNull();
   });
 });
 

@@ -61,6 +61,50 @@ export function setCell(cells: string, i: number, on: boolean): string {
   return cells.slice(0, i) + (on ? "1" : "0") + cells.slice(i + 1);
 }
 
+/**
+ * Who a flip counts against for the rate limit. IPv6 users usually hold a
+ * whole /64 and can switch addresses at will, so they are grouped by it.
+ */
+export function rateBucket(ip: string): string {
+  const v4 = ip.match(/(\d{1,3}(?:\.\d{1,3}){3})$/);
+  if (v4) return v4[1];
+  const [head, tail = ""] = ip.toLowerCase().split("::");
+  const front = head ? head.split(":") : [];
+  const back = tail ? tail.split(":") : [];
+  const groups = ip.includes("::")
+    ? [...front, ...Array(Math.max(0, 8 - front.length - back.length)).fill("0"), ...back]
+    : front;
+  return groups
+    .slice(0, 4)
+    .map((g) => g.replace(/^0+(?=.)/, ""))
+    .join(":");
+}
+
+/** A fresh copy of the wall with this visitor's unsent flips laid over it. */
+export function withPending(cells: string, pending: Map<number, boolean>): string {
+  let out = cells;
+  for (const [i, on] of pending) out = setCell(out, i, on);
+  return out;
+}
+
+const VISIT_TTL_MS = 30 * 60_000;
+
+/**
+ * The last-visit answer saved by an earlier tab in the past half hour, so
+ * opening another tab doesn't record this visitor again and show them
+ * their own visit. Null when there is none.
+ */
+export function cachedVisit(raw: string | null, now: number): { last: unknown } | null {
+  if (!raw) return null;
+  try {
+    const saved = JSON.parse(raw) as { last?: unknown; at?: unknown };
+    if (typeof saved.at !== "number" || now - saved.at > VISIT_TTL_MS || !("last" in saved)) return null;
+    return { last: saved.last };
+  } catch {
+    return null;
+  }
+}
+
 /** Where the last visitor came from. Nothing that identifies them. */
 export type Visit = { city: string; country: string; at: string };
 

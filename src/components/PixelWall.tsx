@@ -2,7 +2,20 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { subscribeTheme } from "@/lib/theme";
-import { BLANK, CELLS, COLS, ROWS, cellAt, cellsBetween, parseCells, parseVisit, setCell, visitLine } from "@/lib/wall";
+import {
+  BLANK,
+  CELLS,
+  COLS,
+  ROWS,
+  cachedVisit,
+  cellAt,
+  cellsBetween,
+  parseCells,
+  parseVisit,
+  setCell,
+  visitLine,
+  withPending,
+} from "@/lib/wall";
 
 const POLL_MS = 20_000;
 const VISIT_KEY = "last-visit";
@@ -14,23 +27,22 @@ const tone = (name: string) => getComputedStyle(document.documentElement).getPro
 let visitOnce: Promise<string | null> | null = null;
 const lastVisitLine = () => (visitOnce ??= fetchLastVisit());
 
-/** Where the visitor before this one came from, asked once per session. */
+/**
+ * Where the visitor before this one came from. Asked at most once every half
+ * hour across all tabs, so a second tab doesn't show you your own visit.
+ */
 async function fetchLastVisit(): Promise<string | null> {
   let stored: string | null = null;
   try {
-    stored = sessionStorage.getItem(VISIT_KEY);
+    stored = localStorage.getItem(VISIT_KEY);
   } catch {}
-  let raw: unknown = null;
-  if (stored !== null) {
-    try {
-      raw = JSON.parse(stored);
-    } catch {}
-  } else {
+  let raw = cachedVisit(stored, Date.now())?.last ?? null;
+  if (!cachedVisit(stored, Date.now())) {
     const res = await fetch("/api/visit", { method: "POST" }).catch(() => null);
     if (!res?.ok) return null;
     raw = ((await res.json().catch(() => null)) as { last?: unknown } | null)?.last ?? null;
     try {
-      sessionStorage.setItem(VISIT_KEY, JSON.stringify(raw));
+      localStorage.setItem(VISIT_KEY, JSON.stringify({ last: raw, at: Date.now() }));
     } catch {}
   }
   const visit = parseVisit(raw);
@@ -48,6 +60,9 @@ export default function PixelWall() {
   const cells = useRef(BLANK);
   const cursor = useRef<number | null>(null);
   const drag = useRef<{ on: boolean; last: number } | null>(null);
+  // Flips sent but not yet answered, laid over every refresh so they don't
+  // blink out when a poll lands before the server has them.
+  const pending = useRef(new Map<number, boolean>());
   const redraw = useRef<() => void>(() => {});
   const [offline, setOffline] = useState(false);
   const [visit, setVisit] = useState<string | null>(null);
@@ -120,7 +135,7 @@ export default function PixelWall() {
       if (!res?.ok) return setOffline(true);
       const body = (await res.json().catch(() => null)) as { cells?: unknown } | null;
       if (gone || drag.current) return;
-      cells.current = parseCells(body?.cells);
+      cells.current = withPending(parseCells(body?.cells), pending.current);
       setOffline(false);
       redraw.current();
     };
@@ -144,6 +159,7 @@ export default function PixelWall() {
     const was = cells.current[i] === "1";
     if (was === on) return;
     cells.current = setCell(cells.current, i, on);
+    pending.current.set(i, on);
     redraw.current();
     void fetch("/api/wall", {
       method: "POST",
@@ -153,7 +169,10 @@ export default function PixelWall() {
       .then((res) => res.ok)
       .catch(() => false)
       .then((ok) => {
-        // Refused or lost: put the pixel back, unless it has been changed since.
+        // Only the latest flip of a cell settles it.
+        if (pending.current.get(i) !== on) return;
+        pending.current.delete(i);
+        // Refused or lost: put the pixel back.
         if (ok || (cells.current[i] === "1") !== on) return;
         cells.current = setCell(cells.current, i, was);
         redraw.current();
@@ -222,7 +241,9 @@ export default function PixelWall() {
         onPointerUp={up}
         onPointerCancel={up}
         onKeyDown={key}
-        onFocus={() => {
+        onFocus={(e) => {
+          // The cursor is for keyboard users; a click focuses the wall too.
+          if (!e.currentTarget.matches(":focus-visible")) return;
           cursor.current ??= 0;
           redraw.current();
         }}

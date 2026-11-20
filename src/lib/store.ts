@@ -1,9 +1,10 @@
 import { Redis } from "@upstash/redis";
-import { BLANK, CELLS, parseCells, parseVisit, type Visit } from "@/lib/wall";
+import { BLANK, CELLS, parseCells, parseVisit, rateBucket, type Visit } from "@/lib/wall";
 
 const WALL = "wall";
 const VISIT = "visit";
 const FLIPS_PER_MINUTE = 60;
+const FLIPS_PER_MINUTE_ALL = 600;
 
 let client: Redis | null | undefined;
 
@@ -37,14 +38,22 @@ export async function wipeWall(db: Redis): Promise<void> {
   await db.set(WALL, BLANK);
 }
 
-/** At most 60 flips a minute per visitor, keyed by a hash of their address. */
+const count = async (db: Redis, key: string) => {
+  const n = await db.incr(key);
+  if (n === 1) await db.expire(key, 60);
+  return n;
+};
+
+/**
+ * At most 60 flips a minute per visitor (keyed by a hash of their address,
+ * or of their IPv6 /64), and 600 a minute across everyone, so no script
+ * can repaint the whole wall in seconds.
+ */
 export async function allowFlip(db: Redis, ip: string): Promise<boolean> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip));
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(rateBucket(ip)));
   const id = [...new Uint8Array(digest).slice(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join("");
-  const key = `rl:${id}`;
-  const count = await db.incr(key);
-  if (count === 1) await db.expire(key, 60);
-  return count <= FLIPS_PER_MINUTE;
+  if ((await count(db, `rl:${id}`)) > FLIPS_PER_MINUTE) return false;
+  return (await count(db, "rl:all")) <= FLIPS_PER_MINUTE_ALL;
 }
 
 export async function lastVisit(db: Redis): Promise<Visit | null> {
