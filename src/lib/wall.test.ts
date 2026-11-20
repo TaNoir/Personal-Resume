@@ -13,6 +13,7 @@ import {
   rateBucket,
   setCell,
   visitLine,
+  wipeResult,
   withPending,
 } from "./wall";
 
@@ -102,6 +103,16 @@ describe("cached last visit", () => {
     expect(cachedVisit(null, now)).toBeNull();
     expect(cachedVisit("{oops", now)).toBeNull();
     expect(cachedVisit(JSON.stringify({ at: now }), now)).toBeNull();
+  });
+});
+
+describe("wipe result", () => {
+  it("says what happened in plain words", () => {
+    expect(wipeResult(204)).toEqual({ text: "Wall cleared.", forget: false });
+    expect(wipeResult(401)).toEqual({ text: "That token doesn't match the one in Vercel.", forget: true });
+    expect(wipeResult(503)).toEqual({ text: "The wall is offline right now.", forget: false });
+    expect(wipeResult(null)).toEqual({ text: "Couldn't reach the site. Check your connection.", forget: false });
+    expect(wipeResult(500).text).toBe("Something went wrong (500).");
   });
 });
 

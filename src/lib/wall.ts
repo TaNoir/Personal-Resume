@@ -105,6 +105,19 @@ export function cachedVisit(raw: string | null, now: number): { last: unknown } 
   }
 }
 
+/**
+ * What the owner sees after pressing "clear the wall", from the server's
+ * status (null when the request never arrived). `forget` drops a saved
+ * token that turned out wrong.
+ */
+export function wipeResult(status: number | null): { text: string; forget: boolean } {
+  if (status === 204) return { text: "Wall cleared.", forget: false };
+  if (status === 401) return { text: "That token doesn't match the one in Vercel.", forget: true };
+  if (status === 503) return { text: "The wall is offline right now.", forget: false };
+  if (status === null) return { text: "Couldn't reach the site. Check your connection.", forget: false };
+  return { text: `Something went wrong (${status}).`, forget: false };
+}
+
 /** Where the last visitor came from. Nothing that identifies them. */
 export type Visit = { city: string; country: string; at: string };
 
